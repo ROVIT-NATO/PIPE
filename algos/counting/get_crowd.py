@@ -78,6 +78,8 @@ def process_frame(frame):
 
         print('Crowd count = ' + str(math.ceil(count)))
 
+        return math.ceil(count), density_map
+
 
 
 #

@@ -79,6 +79,11 @@ def process_flow(frame,p_frame):
 
 
 
+    return flow_uv,ave_flow_mag,ave_flow_dir
+
+
+
+
 
 
 

@@ -26,6 +26,8 @@ def process(vidpath,frameId):
     predicted_label = predictor.predict(vid)
     print('Fight Detection Results : ' + predicted_label)
 
+    return predicted_label
+
 
     # os.remove(vid)
 

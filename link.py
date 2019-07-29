@@ -8,6 +8,10 @@ from algos.flow_analysis import get_flow
 from algos.fight.demo import fight
 from algos.abnormal_behaviour.demo import abnormal
 os.environ["CUDA_VISIBLE_DEVICES"]='1'
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+
 
 
 # Consts to be read from setting file
@@ -35,12 +39,13 @@ def make_output_vid(frame, frameId=None, out=None):
 
 def linker(url,freq,vid_len):
 
+
     cap = cv2.VideoCapture(url)
     frameRate = 25
-    if cap.isOpened():
-        print("DRONE CONNECTION IS ESTABLISHED. PRESS Q TO TERMINATE")
-    else:
-        print("OOPS!!! FAILED TO ESTABLISH CONNECTION. CHECK RTSP URL. PROCESS TERMINATED")
+    # if cap.isOpened():
+    #     print("DRONE CONNECTION IS ESTABLISHED. PRESS Q TO TERMINATE")
+    # else:
+    #     print("OOPS!!! FAILED TO ESTABLISH CONNECTION. CHECK RTSP URL. PROCESS TERMINATED")
 
     _,frame = cap.read()
 
@@ -51,9 +56,12 @@ def linker(url,freq,vid_len):
 
     p_frame = []
 
+
     # infinite loop over the capture
 
-    while True:
+    Round = True
+
+    while Round:
 
         frameId = cap.get(1)
 
@@ -77,43 +85,71 @@ def linker(url,freq,vid_len):
 
             # algorithms to be added here
 
-            print('----------------' + str(datetime.datetime.now()) + '------------------')
+            # print('----------------' + str(datetime.datetime.now()) + '------------------')
 
 
 
 
-            get_crowd.process_frame(frame)
+            # count, density_map = get_crowd.process_frame(frame)
             if (f>1):
-                get_flow.process_flow(frame,p_frame)
+                count, density_map = get_crowd.process_frame(frame)
+                flow_map,ave_flow_mag,ave_flow_dir = get_flow.process_flow(frame,p_frame)
 
             p_frame=frame[:]
 
         if (f>0) and (f % 2) == 0:
-            fight.process(vidpath,x)
-            abnormal.process(vidpath,x)
+            fight_label = fight.process(vidpath,x)
+            abnormal_label = abnormal.process(vidpath,x)
 
             f=f-1
 
-            print('-------------------------------------------------------------')
+            # print('-------------------------------------------------------------')
 
+            Round =False
 
-        #     process termination
-
-        if cv2.waitKey(1) == ord('q'):
-            print('PROCESS TERMINATED MANUALLY!')
-            cap.release()
-
-            break
+            return frame,density_map,count,flow_map,ave_flow_dir,ave_flow_mag,fight_label,abnormal_label
 
 
 
 
 
-    cv2.destroyAllWindows()
+cap = cv2.VideoCapture('rtsp://root:pass@10.144.129.107/axis-media/media.amp')
+if cap.isOpened():
+    print("DRONE CONNECTION IS ESTABLISHED. PRESS Q TO TERMINATE")
+else:
+    print("OOPS!!! FAILED TO ESTABLISH CONNECTION. CHECK RTSP URL. PROCESS TERMINATED")
+
+print('--------------------' + str(datetime.datetime.now()) + '-----------------------')
+
+f = plt.figure()
+
+while True:
+
+
+    ori,den_map,cnt,f_mp,flow_dir,flow_mag,fight_l,abnormal_l  = linker('rtsp://root:pass@10.144.129.107/axis-media/media.amp',5,5)
+
+    print('--------------------' + str(datetime.datetime.now()) + '-----------------------')
+
+
+
+    f.add_subplot(1, 3, 1)
+    plt.imshow(den_map)
+    f.add_subplot(1, 3, 2)
+    plt.imshow(ori)
+    f.add_subplot(1, 3, 3)
+    plt.imshow(f_mp[:, :, 0])
+
+    plt.pause(0.001)
 
 
 
 
 
 
-linker('rtsp://root:pass@10.144.129.107/axis-media/media.amp',5,5)
+
+
+
+
+
+
+

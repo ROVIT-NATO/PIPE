@@ -29,6 +29,8 @@ def process(vidpath,frameId):
 
     os.remove(vid)
 
+    return predicted_label
+
 
 
 
