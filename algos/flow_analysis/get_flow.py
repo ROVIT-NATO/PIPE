@@ -4,20 +4,42 @@ from torch.autograd import Variable
 import torch
 import math
 import os
+import urllib.request
+import sys
+
 
 from algos.flow_analysis.FlowNet2_src import flow_to_image
 
 from algos.flow_analysis.FlowNet2_src import FlowNet2
 
 model=[]
-path='/home/mahdi/PycharmProjects/PIPE/algos/flow_analysis/FlowNet2_src/pretrained/FlowNet2_checkpoint.pth.tar'
+
+path= os.path.join(os.path.dirname(__file__)) + '/FlowNet2_src/pretrained/FlowNet2_checkpoint.pth.tar'
 
 
+
+def reporthook(block_num, block_size, total_size):
+    read_so_far = block_num * block_size
+    if total_size > 0:
+        percent = read_so_far * 1e2 / total_size
+        s = "\r%5.1f%% %*d / %d" % (
+            percent, len(str(total_size)), read_so_far, total_size)
+        sys.stderr.write(s)
+        if read_so_far >= total_size:  # near the end
+            sys.stderr.write("\n")
+    else:  # total size is unknown
+        sys.stderr.write("read %d\n" % (read_so_far,))
 
 
 flownet2 = FlowNet2()
 
-pretrained_dict = torch.load(path)['state_dict']
+if os.path.isfile(path):
+    pretrained_dict = torch.load(path)['state_dict']
+else:
+    print('flow weights not found.. downloading ')
+
+    urllib.request.urlretrieve(
+        "http://download1650.mediafire.com/byginqzgf2sg/vrir61dv2ed93ty/FlowNet2_checkpoint.pth.tar", path , reporthook=reporthook)
 
 model_dict = flownet2.state_dict()
 pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}

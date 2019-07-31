@@ -20,7 +20,8 @@ import algos.counting.C_CNN.src.network as nw
 
 scale = 0.3
 
-model_path1 = '/home/mahdi/PycharmProjects/PIPE/algos/counting/C_CNN/final_models/new.h5'
+model_path1 = os.path.join(os.path.dirname(__file__)) + '/C_CNN/final_models/new.h5'
+
 net1 = CrowdCounter()
 nw.load_net(model_path1, net1)
 
