@@ -1,25 +1,22 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+import urllib.request
+import sys
 
-fig = plt.figure()
+def reporthook(block_num, block_size, total_size):
+    read_so_far = block_num * block_size
+    if total_size > 0:
+        percent = read_so_far * 1e2 / total_size
+        s = "\r%5.1f%% %*d / %d" % (
+            percent, len(str(total_size)), read_so_far, total_size)
+        sys.stderr.write(s)
+        if read_so_far >= total_size:  # near the end
+            sys.stderr.write("\n")
+    else:  # total size is unknown
+        sys.stderr.write("read %d\n" % (read_so_far,))
+
+urllib.request.urlretrieve ("http://download1650.mediafire.com/byginqzgf2sg/vrir61dv2ed93ty/FlowNet2_checkpoint.pth.tar", "/home/mahdi/PycharmProjects/PIPE/algos/flow_analysis/FlowNet2_src/pretrained/FlowNet2_checkpoint.pth.tar", reporthook=reporthook)
 
 
-def f(x, y):
-    return np.sin(x) + np.cos(y)
-
-x = np.linspace(0, 2 * np.pi, 120)
-y = np.linspace(0, 2 * np.pi, 100).reshape(-1, 1)
-
-im = plt.imshow(f(x, y), animated=True)
 
 
-def updatefig(*args):
-    global x, y
-    x += np.pi / 15.
-    y += np.pi / 20.
-    im.set_array(f(x, y))
-    return im,
 
-ani = animation.FuncAnimation(fig, updatefig, interval=50, blit=True)
-plt.show()
+
