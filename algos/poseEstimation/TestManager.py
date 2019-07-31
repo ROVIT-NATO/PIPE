@@ -17,15 +17,6 @@ from tensblur.smoother import Smoother
 from estimator import PoseEstimator, TfPoseEstimator
 
 
-# logger = logging.getLogger('run')
-# logger.setLevel(logging.DEBUG)
-# ch = logging.StreamHandler()
-# ch.setLevel(logging.DEBUG)
-# formatter = logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s')
-# ch.setFormatter(formatter)
-# logger.addHandler(ch)
-
-
 def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_19.ckpt', use_bn=False):
     tf.logging.set_verbosity(tf.logging.WARN)
 
@@ -77,39 +68,49 @@ def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_
     return [sess, tensor_peaks, hm_up, cpm_up, raw_img, img_size]
 
 
-def processFrame(InFrame, IntfSession):
-    predict = IntfSession[0]
-    tensor_peaks = IntfSession[1]
-    hm_up = IntfSession[2]
-    cpm_up = IntfSession[3]
-    raw_img = IntfSession[4]
-    img_size = IntfSession[5]
+def processFrame(InFrame, InTensorflowSession):
+    predict = InTensorflowSession[0]
+    tensor_peaks = InTensorflowSession[1]
+    hm_up = InTensorflowSession[2]
+    cpm_up = InTensorflowSession[3]
+    raw_img = InTensorflowSession[4]
+    img_size = InTensorflowSession[5]
 
-    image = common.read_imgfile(InFrame)
-    size = [image.shape[0], image.shape[1]]
-    if image is None:
-        print('Image can not be read, path=%s' % InFrame)
-        # logger.error('Image can not be read, path=%s' % InFrame)
-        sys.exit(-1)
-    h = int(654 * (size[0] / size[1]))
-    img = np.array(cv2.resize(image, (654, h)))
-    # cv2.imwrite('/media/ramdisk/img.png', img)
-    # cv2.imshow('ini', img)
+
+    ori_w = InFrame.shape[1]
+    ori_h = InFrame.shape[0]
+
+    size = [int(654 * (ori_h / ori_w)), 654]
+    h = int(654 * (ori_h / ori_w))
+
+    img = np.array(cv2.resize(InFrame, (654, h)))
+
+    # img_corner = np.array(cv2.resize(image, (360, int(360 * (ori_h / ori_w)))))
     img = img[np.newaxis, :]
     peaks, heatmap, vectormap = predict.run([tensor_peaks, hm_up, cpm_up],
-                                                    feed_dict={raw_img: img, img_size: size})
-    cv2.imwrite('/media/ramdisk/vector.png', vectormap[0, :, :, 0])
-    # cv2.imshow('in', vectormap[0, :, :, 0])
-
+                                            feed_dict={raw_img: img, img_size: size})
     bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
-    image = TfPoseEstimator.draw_humans(image, bodys, imgcopy=False)
+    InFrame = TfPoseEstimator.draw_humans(InFrame, bodys, imgcopy=False)
+
+    # image = common.read_imgfile(InFrame)
+    # image = InFrame
+    # size = [image.shape[0], image.shape[1]]
+    # if image is None:
+    #     print('Image can not be read, path=%s' % InFrame)
+    #     # logger.error('Image can not be read, path=%s' % InFrame)
+    #     sys.exit(-1)
+    # h = int(654 * (size[0] / size[1]))
+    # img = np.array(cv2.resize(image, (654, h)))
+    # # cv2.imwrite('/media/ramdisk/img.png', img)
+    # # cv2.imshow('ini', img)
+    # img = img[np.newaxis, :]
+    # peaks, heatmap, vectormap = predict.run([tensor_peaks, hm_up, cpm_up],
+    #                                                 feed_dict={raw_img: img, img_size: size})
+    # cv2.imwrite('/media/ramdisk/vector.png', vectormap[0, :, :, 0])
+    # # cv2.imshow('in', vectormap[0, :, :, 0])
+    #
+    # bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
+    # image = TfPoseEstimator.draw_humans(image, bodys, imgcopy=False)
     # cv2.imshow(' ', image)
-    cv2.imwrite('/media/ramdisk/image.png', image)
-
-
-if __name__ == '__main__':
-    session = init(InCheckPointPath='checkpoints/train/',
-                   vgg19_path='checkpoints/vgg/vgg_19.ckpt')
-    image = '/ocean/anish/Developer/RnD/poseEstimation/deep-high-resolution-net.pytorch/data/mpii/images/000916555.jpg'
-    processFrame(image, session)
-    session[0].close()
+    cv2.imwrite('/media/ramdisk/output.png', InFrame)
+    return InFrame

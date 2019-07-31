@@ -1,16 +1,16 @@
-
-import time
-import paho.mqtt.client as mqtt
+# import time
+# import paho.mqtt.client as mqtt
 import math
 import datetime
 import os
 import numpy as np
-import base64
+# import base64
 import cv2
 import json
-import arrow
+# import arrow
 from pathlib import Path
 import sys
+
 sys.path.append(str(Path(__file__).absolute().parents[4]))
 
 from algos.counting.C_CNN.src.crowd_count import CrowdCounter
@@ -30,7 +30,6 @@ if net1.cuda_available():
 else:
     print('RUNNING WITHOUT CUDA SUPPORT')
     net1.eval()
-
 
 
 def process_frame(frame):
@@ -79,7 +78,6 @@ def process_frame(frame):
         print('Crowd count = ' + str(math.ceil(count)))
 
         return math.ceil(count), density_map
-
 
 
 #

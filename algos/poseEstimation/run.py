@@ -16,7 +16,7 @@ from tensblur.smoother import Smoother
 from estimator import PoseEstimator, TfPoseEstimator
 
 
-# logger = logging.getLogger('run')
+# logger = logging.getLogger('get_Pose')
 # logger.setLevel(logging.DEBUG)
 # ch = logging.StreamHandler()
 # ch.setLevel(logging.DEBUG)
@@ -103,17 +103,17 @@ def processFrame(InFrame, IntfSession):
 
 # #
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(description='Training codes for Openpose using Tensorflow')
-    # parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/')
-    # parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
-    # parser.add_argument('--image', type=str, default=None)
-    # # parser.add_argument('--run_model', type=str, default='img')
-    # parser.add_argument('--video', type=str, default=None)
-    # parser.add_argument('--train_vgg', type=bool, default=True)
-    # parser.add_argument('--use_bn', type=bool, default=False)
-    # parser.add_argument('--save_video', type=str, default='result/our.mp4')
+    parser = argparse.ArgumentParser(description='Training codes for Openpose using Tensorflow')
+    parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/')
+    parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
+    parser.add_argument('--image', type=str, default=None)
+    # parser.add_argument('--run_model', type=str, default='img')
+    parser.add_argument('--video', type=str, default=None)
+    parser.add_argument('--train_vgg', type=bool, default=True)
+    parser.add_argument('--use_bn', type=bool, default=False)
+    parser.add_argument('--save_video', type=str, default='result/our.mp4')
 
-    # args = parser.parse_args()
+    args = parser.parse_args()
     args.image = '/ocean/anish/Developer/RnD/poseEstimation/deep-high-resolution-net.pytorch/data/mpii/images/000448169.jpg'
 
     checkpoint_path = args.checkpoint_path
@@ -158,77 +158,77 @@ if __name__ == '__main__':
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     #
-    # with tf.Session(config=config) as sess:
-    #     sess.run(tf.group(tf.global_variables_initializer()))
-    #     logger.info('restoring vgg weights...')
-    #     restorer.restore(sess, args.backbone_net_ckpt_path)
-    #     logger.info('restoring from checkpoint...')
-    #     saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
-    #     # saver.restore(sess, args.checkpoint_path + 'model-55000.ckpt')
-    #     logger.info('initialization done')
-    #     if args.image is None:
-    #         if args.video is not None:
-    #             cap = cv2.VideoCapture(args.video)
-    #         else:
-    #             # webcam
-    #             cap = cv2.VideoCapture(0)
-    #             # cap = cv2.VideoCapture('rtsp://root:pass@10.144.129.107/axis-media/media.amp')
-    #         _, image = cap.read()
-    #         if image is None:
-    #             logger.error("Can't read video")
-    #             sys.exit(-1)
-    #         fps = cap.get(cv2.CAP_PROP_FPS)
-    #         ori_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    #         ori_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    #         if args.save_video is not None:
-    #             fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-    #             video_saver = cv2.VideoWriter('result/our.mp4', fourcc, fps, (ori_w, ori_h))
-    #             logger.info('record vide to %s' % args.save_video)
-    #         logger.info('fps@%f' % fps)
-    #         size = [int(654 * (ori_h / ori_w)), 654]
-    #         h = int(654 * (ori_h / ori_w))
-    #         time_n = time.time()
-    #         while True:
-    #             _, image = cap.read()
-    #             img = np.array(cv2.resize(image, (654, h)))
-    #             cv2.imshow('raw', img)
-    #             img_corner = np.array(cv2.resize(image, (360, int(360*(ori_h/ori_w)))))
-    #             img = img[np.newaxis, :]
-    #             peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up],
-    #                                                  feed_dict={raw_img: img, img_size: size})
-    #             bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
-    #             image = TfPoseEstimator.draw_humans(image, bodys, imgcopy=False)
-    #             fps = round(1 / (time.time() - time_n), 2)
-    #             image = cv2.putText(image, str(fps)+'fps', (10, 15), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 255, 255))
-    #             time_n = time.time()
-    #             if args.video is not None:
-    #                 image[27:img_corner.shape[0]+27, :img_corner.shape[1]] = img_corner  # [3:-10, :]
-    #             cv2.imwrite('/media/ramdisk/output.png',image)
-    #             # cv2.imshow(' ', image)
-    #
-    #             if args.save_video is not None:
-    #                 video_saver.write(image)
-    #             cv2.waitKey(1)
-    #     else:
-    #         image = common.read_imgfile(args.image)
-    #         size = [image.shape[0], image.shape[1]]
-    #         if image is None:
-    #             logger.error('Image can not be read, path=%s' % args.image)
-    #             sys.exit(-1)
-    #         h = int(654 * (size[0] / size[1]))
-    #         img = np.array(cv2.resize(image, (654, h)))
-    #         cv2.imwrite('/media/ramdisk/img.png', img)
-    #         # cv2.imshow('ini', img)
-    #         img = img[np.newaxis, :]
-    #         peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up], feed_dict={raw_img: img, img_size: size})
-    #         cv2.imwrite('/media/ramdisk/vector.png',vectormap[0, :, :, 0])
-    #         # cv2.imshow('in', vectormap[0, :, :, 0])
-    #
-    #         bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
-    #         image = TfPoseEstimator.draw_humans(image, bodys, imgcopy=False)
-    #         # cv2.imshow(' ', image)
-    #         cv2.imwrite('/media/ramdisk/image.png', image)
-    #         cv2.waitKey(0)
+    with tf.Session(config=config) as sess:
+        sess.run(tf.group(tf.global_variables_initializer()))
+        logger.info('restoring vgg weights...')
+        restorer.restore(sess, args.backbone_net_ckpt_path)
+        logger.info('restoring from checkpoint...')
+        saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
+        # saver.restore(sess, args.checkpoint_path + 'model-55000.ckpt')
+        logger.info('initialization done')
+        if args.image is None:
+            if args.video is not None:
+                cap = cv2.VideoCapture(args.video)
+            else:
+                # webcam
+                cap = cv2.VideoCapture(0)
+                # cap = cv2.VideoCapture('rtsp://root:pass@10.144.129.107/axis-media/media.amp')
+            _, image = cap.read()
+            if image is None:
+                logger.error("Can't read video")
+                sys.exit(-1)
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            ori_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            ori_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            if args.save_video is not None:
+                fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+                video_saver = cv2.VideoWriter('result/our.mp4', fourcc, fps, (ori_w, ori_h))
+                logger.info('record vide to %s' % args.save_video)
+            logger.info('fps@%f' % fps)
+            size = [int(654 * (ori_h / ori_w)), 654]
+            h = int(654 * (ori_h / ori_w))
+            time_n = time.time()
+            while True:
+                _, image = cap.read()
+                img = np.array(cv2.resize(image, (654, h)))
+                cv2.imshow('raw', img)
+                img_corner = np.array(cv2.resize(image, (360, int(360*(ori_h/ori_w)))))
+                img = img[np.newaxis, :]
+                peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up],
+                                                     feed_dict={raw_img: img, img_size: size})
+                bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
+                image = TfPoseEstimator.draw_humans(image, bodys, imgcopy=False)
+                fps = round(1 / (time.time() - time_n), 2)
+                image = cv2.putText(image, str(fps)+'fps', (10, 15), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 255, 255))
+                time_n = time.time()
+                if args.video is not None:
+                    image[27:img_corner.shape[0]+27, :img_corner.shape[1]] = img_corner  # [3:-10, :]
+                cv2.imwrite('/media/ramdisk/output.png',image)
+                # cv2.imshow(' ', image)
+
+                if args.save_video is not None:
+                    video_saver.write(image)
+                cv2.waitKey(1)
+        else:
+            image = common.read_imgfile(args.image)
+            size = [image.shape[0], image.shape[1]]
+            if image is None:
+                logger.error('Image can not be read, path=%s' % args.image)
+                sys.exit(-1)
+            h = int(654 * (size[0] / size[1]))
+            img = np.array(cv2.resize(image, (654, h)))
+            cv2.imwrite('/media/ramdisk/img.png', img)
+            # cv2.imshow('ini', img)
+            img = img[np.newaxis, :]
+            peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up], feed_dict={raw_img: img, img_size: size})
+            cv2.imwrite('/media/ramdisk/vector.png',vectormap[0, :, :, 0])
+            # cv2.imshow('in', vectormap[0, :, :, 0])
+
+            bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
+            image = TfPoseEstimator.draw_humans(image, bodys, imgcopy=False)
+            # cv2.imshow(' ', image)
+            cv2.imwrite('/media/ramdisk/image.png', image)
+            cv2.waitKey(0)
 
     sess = tf.Session(config=config)
     sess.run(tf.group(tf.global_variables_initializer()))
