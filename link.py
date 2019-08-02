@@ -4,7 +4,7 @@ import LogManager
 
 LogManager.displayLog('[Info] Loading Pose Detection ...', 'blue')
 from algos.poseEstimation import get_Pose
-
+#
 LogManager.displayLog('[Info] Loading Crowd Counting  ...', 'blue')
 from algos.counting import get_crowd
 
@@ -30,9 +30,15 @@ def set_configuration(InValue):
 # main processFrame function connects to RTSP and distributes frames/clips to algorithms
 def processFrame(url, freq):
     camera = cv2.VideoCapture(url)
-    _, frame = camera.read()
+    ret, frame = camera.read()
+    if ret is False:
+        LogManager.displayLog('[Error] Could not load camera!','red')
 
-    tempVideoWriter = UtilityManager.make_output_vid(frame, config.FRAMERATE, config.FRAMERATE)
+    tempVideoWriter = UtilityManager.make_output_vid(InFrame=frame,
+                                                     InFrameRate=config.FRAMERATE,
+                                                     InVideoPath=config.TEMP_VIDEO_PATH,
+                                                     InFrameID=None,
+                                                     InVideoWriter= None)
 
     temp = []
     frameNo = 0
@@ -48,17 +54,24 @@ def processFrame(url, freq):
         abnormal_label = None
         flow_map, ave_flow_dir, ave_flow_mag = None, None, None
         tempFrameID = None
+
         frameId = camera.get(1)
         # Capture frame-by-frame
         ret, frame = camera.read()
-        frame = UtilityManager.resize_image(frame, InRatio=50)
+        # resize the image 50%
+        if config.IS_RESIZE_INPUT_IMAGE:
+            frame = UtilityManager.resize_image(frame, InRatio=50)
 
         if ret:
             tempVideoWriter.write(frame)
 
         # Run the algorithm based on the given interval
         if frameId % (config.FRAMERATE * freq) == 0:
-            tempVideoWriter = UtilityManager.make_output_vid(frame, config.FRAMERATE, frameId, tempVideoWriter)
+            tempVideoWriter = UtilityManager.make_output_vid(InFrame=frame,
+                                                             InFrameRate=config.FRAMERATE,
+                                                             InVideoPath=config.TEMP_VIDEO_PATH,
+                                                             InFrameID=frameId,
+                                                             InVideoWriter=tempVideoWriter)
             tempFrameID = temp
             temp = frameId
             frameNo = frameNo + 1
@@ -70,7 +83,6 @@ def processFrame(url, freq):
             previousFrame = frame[:]
 
         if (frameNo > 0) and (frameNo % 2) == 0:
-            #
             fight_label = fight.process(config.TEMP_VIDEO_PATH, tempFrameID)
             abnormal_label = abnormal.process(config.TEMP_VIDEO_PATH, tempFrameID)
 
@@ -79,12 +91,13 @@ def processFrame(url, freq):
             return frame, density_map, count, flow_map, ave_flow_mag, ave_flow_dir, pose, fight_label, abnormal_label
 
 
-def run(InConfiguration):
-    config = InConfiguration
-    # UtilityManager.check_Camera(config.CAMERA_PATH)
+def run():
+    if UtilityManager.remove_Folder(config.TEMP_VIDEO_PATH) is False:
+        UtilityManager.create_Folder(config.TEMP_VIDEO_PATH)
+
     UtilityManager.displayTimeStame()
 
-    fig = plt.figure()
+    # fig = plt.figure()
 
     # Main Loop
     while True:
@@ -105,7 +118,7 @@ def run(InConfiguration):
             else:
                 LogManager.displayLog(f'Fight Detection Results : {fight_label}', 'red')
         if abnormal_label:
-            if abnormal_label=='low':
+            if abnormal_label == 'low':
                 LogManager.displayLog(f'Crowd abnormality Results :{abnormal_label} ', 'white')
             else:
                 LogManager.displayLog(f'Crowd abnormality Results :{abnormal_label} ', 'red')
@@ -113,15 +126,15 @@ def run(InConfiguration):
             LogManager.displayLog(f'Ave flow direction = {ave_flow_dir}', 'white')
             LogManager.displayLog(f'Ave flow Magnitude  = {ave_flow_mag}', 'white')
 
-        fig.add_subplot(1, 3, 1)
-        plt.imshow(ImgFromCamera[:, :, ::-1])
-        if density_map is not None:
-            fig.add_subplot(1, 3, 2)
-            plt.imshow(density_map)
-        if flow_map is not None:
-            fig.add_subplot(1, 3, 3)
-            plt.imshow(flow_map[:, :, 0])
-        if pose is not None:
-            fig.add_subplot(1, 3, 3)
-            plt.imshow(pose)
-        plt.pause(0.001)
+        # fig.add_subplot(1, 3, 1)
+        # plt.imshow(ImgFromCamera[:, :, ::-1])
+        # if density_map is not None:
+        #     fig.add_subplot(1, 3, 2)
+        #     plt.imshow(density_map)
+        # if flow_map is not None:
+        #     fig.add_subplot(1, 3, 3)
+        #     plt.imshow(flow_map[:, :, 0])
+        # if pose is not None:
+        #     fig.add_subplot(1, 3, 3)
+        #     plt.imshow(pose)
+        # plt.pause(0.001)

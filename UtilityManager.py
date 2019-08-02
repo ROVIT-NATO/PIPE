@@ -4,27 +4,29 @@ import warnings
 import cv2
 import sys
 import LogManager
+import shutil
 
 
 def set_CUDA_Environment(InGPU='0'):
     os.environ['CUDA_VISIBLE_DEVICES'] = InGPU
 
 
-def make_output_vid(InFrame, InFrameRate, InFrameID=None, videoWriter=None):
+def make_output_vid(InFrame, InFrameRate, InVideoPath='algos/vid/', InFrameID=None, InVideoWriter=None ):
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    if videoWriter:
-        videoWriter.release()
-    return cv2.VideoWriter(f'algos/vid/{InFrameID}.avi',
+    if InVideoWriter:
+        InVideoWriter.release()
+
+    return cv2.VideoWriter(f'{InVideoPath}/{InFrameID}.avi',
                            fourcc,
                            InFrameRate,
                            (InFrame.shape[1], InFrame.shape[0]))
 
 
-def isFileExist(InPath):
+def Is_File_Exist(InPath):
     if os.path.isfile(InPath):
         return True
     else:
-        False
+        return False
 
 
 def check_Camera(InPath):
@@ -38,15 +40,18 @@ def check_Camera(InPath):
         LogManager.displayLog("[Failed] Failed to establish connection. Check RTSP URL. Process Terminate", 'red')
         sys.exit(-1)
 
+    stream.release()
 
-def ignore_Warning(InValue=True):
-    if InValue:
+
+def enable_Warning(InValue=False):
+    if InValue is False:
+        LogManager.displayLog('[Info] Warning message disable.')
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         warnings.filterwarnings('ignore')
 
 
 def displayTimeStame():
-    LogManager.displayLog('--------------------' + str(datetime.datetime.now()) + '-----------------------')
+    LogManager.displayLog(f'--------------------{datetime.datetime.now()}-----------------------')
 
 
 def resize_image(InImage, InRatio):
@@ -57,3 +62,21 @@ def resize_image(InImage, InRatio):
     dsize = (width, height)
     # resize image
     return cv2.resize(InImage, dsize)
+
+
+def create_Folder(InPath):
+    if not os.path.exists(InPath):
+        os.makedirs(InPath)
+        LogManager.displayLog(f'[Info] Folder {InPath} is created', 'blue')
+    else:
+        LogManager.displayLog(f'[Info] Folder {InPath} already exist.','red')
+
+
+def remove_Folder(InPath):
+    LogManager.displayLog(f'[Info] Cleaning temp folder {InPath}')
+    try:
+        shutil.rmtree(InPath)
+        return True
+    except:
+        LogManager.displayLog(f'[Info] Folder {InPath} not found!')
+        return False

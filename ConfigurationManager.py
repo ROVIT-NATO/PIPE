@@ -8,8 +8,6 @@ class get_Config:
         self.VIDEO_FREQUENCY = 5
         self.VIDEO_LENGTH = 5
         self.TEMP_VIDEO_PATH = (os.path.dirname(__file__) + '/algos/vid/')
-        self.GPUID='0,1'
-
-
-
-
+        self.GPU_ID = '0,1'
+        self.IS_ENABLE_WARNING = False
+        self.IS_RESIZE_INPUT_IMAGE = False
