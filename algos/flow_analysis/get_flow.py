@@ -60,8 +60,8 @@ def process_flow(frame, p_frame):
 
     ave_flow_mag.append(mag)
     ave_flow_dir.append(direction)
-
-    print('Ave flow direction = ', ave_flow_dir)
-    print('Ave flow Magnitude  = ', ave_flow_mag)
+    #
+    # print('Ave flow direction = ', ave_flow_dir)
+    # print('Ave flow Magnitude  = ', ave_flow_mag)
 
     return flow_uv, ave_flow_mag, ave_flow_dir

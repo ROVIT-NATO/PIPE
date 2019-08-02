@@ -1,12 +1,22 @@
 import cv2
 import UtilityManager
 import LogManager
+
+LogManager.displayLog('[Info] Loading Pose Detection ...', 'blue')
 from algos.poseEstimation import get_Pose
+
+LogManager.displayLog('[Info] Loading Crowd Counting  ...', 'blue')
 from algos.counting import get_crowd
+
+LogManager.displayLog('[Info] Loading Flow Detection  ...', 'blue')
 from algos.flow_analysis import get_flow
+
+LogManager.displayLog('[Info] Loading Fight Detection ...', 'blue')
 from algos.fight.demo import fight
+
+LogManager.displayLog('[Info] Loading Abnormal Behaviour Detection ...', 'blue')
 from algos.abnormal_behaviour.demo import abnormal
-import numpy as np
+
 import matplotlib.pyplot as plt
 
 config = None
@@ -18,7 +28,7 @@ def set_configuration(InValue):
 
 
 # main processFrame function connects to RTSP and distributes frames/clips to algorithms
-def processFrame(url, freq, vid_len):
+def processFrame(url, freq):
     camera = cv2.VideoCapture(url)
     _, frame = camera.read()
 
@@ -41,7 +51,7 @@ def processFrame(url, freq, vid_len):
         frameId = camera.get(1)
         # Capture frame-by-frame
         ret, frame = camera.read()
-        # frame = UtilityManager.resize_image(frame, InRatio=80)
+        frame = UtilityManager.resize_image(frame, InRatio=50)
 
         if ret:
             tempVideoWriter.write(frame)
@@ -55,20 +65,18 @@ def processFrame(url, freq, vid_len):
 
             if frameNo > 1:
                 flow_map, ave_flow_mag, ave_flow_dir = get_flow.process_flow(frame, previousFrame)
-                # count, density_map = get_crowd.process_crowd(frame)
-                # pose = get_Pose.process_pose(frame)
+                count, density_map = get_crowd.process_crowd(frame)
+                pose = get_Pose.process_pose(frame)
             previousFrame = frame[:]
 
         if (frameNo > 0) and (frameNo % 2) == 0:
             #
-            # fight_label = fight.process(config.TEMP_VIDEO_PATH, tempFrameID)
-            # abnormal_label = abnormal.process(config.TEMP_VIDEO_PATH, tempFrameID)
+            fight_label = fight.process(config.TEMP_VIDEO_PATH, tempFrameID)
+            abnormal_label = abnormal.process(config.TEMP_VIDEO_PATH, tempFrameID)
 
             frameNo = frameNo - 1
             # streamLoop = False
             return frame, density_map, count, flow_map, ave_flow_mag, ave_flow_dir, pose, fight_label, abnormal_label
-
-            # return frame, density_map, count, flow_map, ave_flow_dir, ave_flow_mag, fight_label, abnormal_label, pose
 
 
 def run(InConfiguration):
@@ -80,51 +88,40 @@ def run(InConfiguration):
 
     # Main Loop
     while True:
-
         ImgFromCamera, \
         density_map, count, \
         flow_map, ave_flow_mag, ave_flow_dir, \
-        pose, fight_label, abnormal_label = processFrame(config.CAMERA_PATH, 5, 5)
+        pose, \
+        fight_label, \
+        abnormal_label = processFrame(config.CAMERA_PATH, 5)
 
-        # ImgFromCamera, count, density_map, flow_map, pose = processFrame(config.CAMERA_PATH, 5, 5)
         UtilityManager.displayTimeStame()
 
         if count:
-            LogManager.displayLog(f'Crowd Count:{count}', 'white', 'underline')
+            LogManager.displayLog(f'Crowd Count:{count}', 'white')
         if fight_label:
-            LogManager.displayLog(f'Fight Detection Results : {fight_label}', 'white')
+            if fight_label == 'noFight':
+                LogManager.displayLog(f'Fight Detection Results : {fight_label}', 'white')
+            else:
+                LogManager.displayLog(f'Fight Detection Results : {fight_label}', 'red')
         if abnormal_label:
-            LogManager.displayLog(f'Crowd abnormality Results :{abnormal_label} ', 'white')
+            if abnormal_label=='low':
+                LogManager.displayLog(f'Crowd abnormality Results :{abnormal_label} ', 'white')
+            else:
+                LogManager.displayLog(f'Crowd abnormality Results :{abnormal_label} ', 'red')
         if ave_flow_dir:
             LogManager.displayLog(f'Ave flow direction = {ave_flow_dir}', 'white')
             LogManager.displayLog(f'Ave flow Magnitude  = {ave_flow_mag}', 'white')
 
-        output = ImgFromCamera[:, :, ::-1]
+        fig.add_subplot(1, 3, 1)
+        plt.imshow(ImgFromCamera[:, :, ::-1])
         if density_map is not None:
-            density_map = cv2.resize(density_map, (output.shape[1], output.shape[1]))
-            density_map = cv2.applyColorMap(density_map, cv2.COLORMAP_JET)
-            output = np.hstack(output, density_map)
-            # plt.imshow(density_map)
+            fig.add_subplot(1, 3, 2)
+            plt.imshow(density_map)
         if flow_map is not None:
-            # plt.imshow(flow_map[:, :, 0])
-            flow = cv2.resize(flow_map[:, :, 0], (output.shape[1], output.shape[1]))
-            output = np.hstack(output, flow)
+            fig.add_subplot(1, 3, 3)
+            plt.imshow(flow_map[:, :, 0])
         if pose is not None:
-            # plt.imshow(pose)
-            pose = cv2.resize(pose, (output.shape[1], output.shape[1]))
-            output = np.hstack(output, pose)
-
-        cv2.imwrite('/media/ramdisk/output.png', output)
-
-        # fig.add_subplot(1, 3, 1)
-        # plt.imshow(ImgFromCamera[:, :, ::-1])
-        # if density_map is not None:
-        #     fig.add_subplot(1, 3, 2)
-        #     plt.imshow(density_map)
-        # if flow_map is not None:
-        #     fig.add_subplot(1, 3, 3)
-        #     plt.imshow(flow_map[:, :, 0])
-        # if pose is not None:
-        #     fig.add_subplot(1, 3, 3)
-        #     plt.imshow(pose)
-        # plt.pause(0.001)
+            fig.add_subplot(1, 3, 3)
+            plt.imshow(pose)
+        plt.pause(0.001)

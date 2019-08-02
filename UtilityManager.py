@@ -5,16 +5,16 @@ import cv2
 import sys
 import LogManager
 
+
 def set_CUDA_Environment(InGPU='0'):
     os.environ['CUDA_VISIBLE_DEVICES'] = InGPU
 
 
-def make_output_vid(InFrame, InFrameRate, InFrameID=None, InTempVideoWriter=None):
+def make_output_vid(InFrame, InFrameRate, InFrameID=None, videoWriter=None):
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    if InTempVideoWriter is True:
-        InTempVideoWriter.release()
-    # videoPath = f'algos/vid/{InFrame}.avi'
-    return cv2.VideoWriter(f'algos/vid/{InFrame}.avi',
+    if videoWriter:
+        videoWriter.release()
+    return cv2.VideoWriter(f'algos/vid/{InFrameID}.avi',
                            fourcc,
                            InFrameRate,
                            (InFrame.shape[1], InFrame.shape[0]))
@@ -32,10 +32,10 @@ def check_Camera(InPath):
     stream = cv2.VideoCapture(InPath)
 
     if stream.isOpened():
-        LogManager.displayLog(f'[Info] Loading {InPath}','blue')
-        LogManager.displayLog("[Info] Drone connection is established.",'green')
+        LogManager.displayLog(f'[Info] Loading {InPath}', 'blue')
+        LogManager.displayLog("[Info] Drone connection is established.", 'green')
     else:
-        LogManager.displayLog("[Failed] Failed to establish connection. Check RTSP URL. Process Terminate",'red')
+        LogManager.displayLog("[Failed] Failed to establish connection. Check RTSP URL. Process Terminate", 'red')
         sys.exit(-1)
 
 

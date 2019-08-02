@@ -21,5 +21,5 @@ def process(vidpath, frameId):
     if os.path.isfile(videoPath):
         return predictor.predict(videoPath)
     else:
-        print(f'No video {videoPath} to fight processing')
+        print(f'No video at {videoPath} found for fight processing')
         return -1
