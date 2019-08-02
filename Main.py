@@ -6,9 +6,11 @@ configuration.CAMERA_PATH = 'rtsp://root:pass@10.144.129.107/axis-media/media.am
 configuration.FRAMERATE = 25
 configuration.TEMP_VIDEO_PATH = 'algos/vid'
 configuration.VIDEO_LENGTH = 5
+configuration.GPUID = '0,1'
+configuration.IsEnableWarning = False
 
-UtilityManager.set_CUDA_Environment('0,1')
-UtilityManager.ignore_Warning(True)
+UtilityManager.set_CUDA_Environment(configuration.GPUID)
+UtilityManager.enable_Warning(configuration.IsEnableWarning)
 UtilityManager.check_Camera(configuration.CAMERA_PATH)
 
 import link
