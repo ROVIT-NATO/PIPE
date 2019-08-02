@@ -1,7 +1,7 @@
 # import time
 # import paho.mqtt.client as mqtt
 import math
-import datetime
+# import datetime
 import os
 import numpy as np
 # import base64
@@ -16,68 +16,49 @@ sys.path.append(str(Path(__file__).absolute().parents[4]))
 from algos.counting.C_CNN.src.crowd_count import CrowdCounter
 import algos.counting.C_CNN.src.network as nw
 
-
-
 scale = 0.3
 
-model_path1 = '/home/mahdi/PycharmProjects/PIPE/algos/counting/C_CNN/final_models/new.h5'
+model_path1 = os.path.dirname(__file__) + '/C_CNN/final_models/new.h5'
 net1 = CrowdCounter()
 nw.load_net(model_path1, net1)
 
 if net1.cuda_available():
-    print('GPU Detected!')
+    print('[Info] GPU Detected!')
     net1.cuda()
 else:
     print('RUNNING WITHOUT CUDA SUPPORT')
     net1.eval()
 
 
-def process_frame(frame):
+def process_crowd(frame):
+    height = frame.shape[0]
+    width = frame.shape[1]
 
+    x = cv2.resize(frame, (0, 0), fx=scale, fy=scale)
+    x = cv2.cvtColor(x, cv2.COLOR_RGB2GRAY)
 
-        height = frame.shape[0]
-        width = frame.shape[1]
+    # INFERENCE
+    x = x.astype(np.float32, copy=False)
+    x = np.expand_dims(x, axis=0)
+    x = np.expand_dims(x, axis=0)
 
-        x = cv2.resize(frame, (0, 0), fx=scale, fy=scale)
-        x = cv2.cvtColor(x, cv2.COLOR_RGB2GRAY)
+    density_map = net1(x)
+    density_map = density_map.data.cpu().numpy()[0][0]
 
-        # INFERENCE
-        x = x.astype(np.float32, copy=False)
-        x = np.expand_dims(x, axis=0)
-        x = np.expand_dims(x, axis=0)
+    count = np.sum(density_map)
 
+    # CONVERT BACK TO ORIGINAL SCALE
+    density_map = cv2.resize(density_map, (width, height))
 
+    # CREATE THE MESSAGE
+    # cam_id = 'camera_id'
+    # cam_bearing = 'camera_bearing'
+    # cam_pos = 'camera_position'
+    # timestamp = str(datetime.datetime.now())
+    # message = create_obs_message(count, density_map, timestamp, cam_id, cam_pos)
+    # print('Crowd count = ' + str(math.ceil(count)))
 
-
-        density_map = net1(x)
-        density_map = density_map.data.cpu().numpy()[0][0]
-
-
-
-
-        count = np.sum(density_map)
-
-        # CONVERT BACK TO ORIGINAL SCALE
-        density_map = cv2.resize(density_map, (width, height))
-
-
-
-
-        # CREATE THE MESSAGE
-        cam_id = 'camera_id'
-        cam_bearing = 'camera_bearing'
-        cam_pos = 'camera_position'
-        timestamp = str(datetime.datetime.now())
-
-
-
-
-        message = create_obs_message(count, density_map, timestamp, cam_id, cam_pos)
-
-
-        print('Crowd count = ' + str(math.ceil(count)))
-
-        return math.ceil(count), density_map
+    return math.ceil(count), density_map
 
 
 #
@@ -95,18 +76,16 @@ def process_frame(frame):
 #     print(str(msg.payload))
 
 
-def create_obs_message(count, density_map, timestamp, cam_id, cam_pos ):
-     data = {
-            'camera_id': cam_id,
-            'camera_position':cam_pos,
-            'density_count': int(count),
-            'timestamp': str(timestamp),
-            'density_map': density_map,
-     }
+def create_obs_message(count, density_map, timestamp, cam_id, cam_pos):
+    data = {
+        'camera_id': cam_id,
+        'camera_position': cam_pos,
+        'density_count': int(count),
+        'timestamp': str(timestamp),
+        'density_map': density_map,
+    }
 
-     return data
-
-
+    return data
 
 
 def load_settings(self, location, file_name):

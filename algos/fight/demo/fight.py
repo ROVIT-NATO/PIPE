@@ -16,21 +16,10 @@ predictor = VGG16BidirectionalLSTMVideoClassifier()
 predictor.load_model(config_file_path, weight_file_path)
 
 
-def process(vidpath,frameId):
-
-    vid = vidpath + str(frameId) +'.avi'
-    vid1 = vidpath + 'None.avi'
-    # print('vid currently in process = ', vid)
-
-
-    predicted_label = predictor.predict(vid)
-    print('Fight Detection Results : ' + predicted_label)
-
-    return predicted_label
-
-
-    # os.remove(vid)
-
-
-
-
+def process(vidpath, frameId):
+    videoPath = f'{vidpath}/{frameId}.avi'
+    if os.path.isfile(videoPath):
+        return predictor.predict(videoPath)
+    else:
+        print(f'No video {videoPath} to fight processing')
+        return -1

@@ -19,17 +19,17 @@ def train():
     parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
     parser.add_argument('--train_vgg', type=bool, default=True)
     parser.add_argument('--annot_path', type=str,
-                        default='/get_Pose/user/1000/gvfs/smb-share:server=server,share=data/yzy/dataset/'
+                        default='/process_pose/user/1000/gvfs/smb-share:server=server,share=data/yzy/dataset/'
                                 'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/annotations/')
     parser.add_argument('--img_path', type=str,
-                        default='/get_Pose/user/1000/gvfs/smb-share:server=server,share=data/yzy/dataset/'
+                        default='/process_pose/user/1000/gvfs/smb-share:server=server,share=data/yzy/dataset/'
                                 'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/images/')
     # parser.add_argument('--annot_path_val', type=str,
-    #                     default='/get_Pose/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
+    #                     default='/process_pose/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
     #                             'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/annotations/'
     #                             'person_keypoints_val2017.json')
     # parser.add_argument('--img_path_val', type=str,
-    #                     default='/get_Pose/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
+    #                     default='/process_pose/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
     #                             'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/images/val2017/')
     parser.add_argument('--save_checkpoint_frequency', type=str, default=1000)
     parser.add_argument('--save_summary_frequency', type=str, default=100)

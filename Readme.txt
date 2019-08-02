@@ -2,9 +2,9 @@ Hi Guys...
 
 this is the repository for NATO project..
 
-the linker.py receives the RTSP stream and distributes it across the algorithms.
+the processFrame.py receives the RTSP stream and distributes it across the algorithms.
 
-Please place the Algorithms inside 'algos' folder and link it to linker.py 
+Please place the Algorithms inside 'algos' folder and link it to processFrame.py
 
 feel free to edit and modify everything
 

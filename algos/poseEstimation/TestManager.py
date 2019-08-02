@@ -1,24 +1,22 @@
-import warnings
 
-warnings.filterwarnings('ignore')
+# import argparse
 
-import argparse
 import tensorflow as tf
-import sys
-import time
-import logging
+tf.logging.set_verbosity(tf.logging.ERROR)
+
 import cv2
 import numpy as np
 from tensorflow.contrib import slim
-import vgg
-from cpm import PafNet
-import common
-from tensblur.smoother import Smoother
-from estimator import PoseEstimator, TfPoseEstimator
+
+import algos.poseEstimation.vgg as vgg
+from algos.poseEstimation.cpm import PafNet
+# import common
+from algos.poseEstimation.tensblur.smoother import Smoother
+from algos.poseEstimation.estimator import PoseEstimator, TfPoseEstimator
 
 
 def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_19.ckpt', use_bn=False):
-    tf.logging.set_verbosity(tf.logging.WARN)
+    # tf.logging.set_verbosity(tf.logging.WARN)
 
     checkpoint_path = InCheckPointPath
     backbone_net_ckpt_path = vgg19_path

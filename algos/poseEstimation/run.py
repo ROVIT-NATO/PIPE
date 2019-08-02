@@ -16,7 +16,7 @@ from tensblur.smoother import Smoother
 from estimator import PoseEstimator, TfPoseEstimator
 
 
-# logger = logging.getLogger('get_Pose')
+# logger = logging.getLogger('process_pose')
 # logger.setLevel(logging.DEBUG)
 # ch = logging.StreamHandler()
 # ch.setLevel(logging.DEBUG)

@@ -2,14 +2,13 @@ import cv2
 import sys
 # import Settings
 # from algos.counting import get_crowd
-# from algos.flow_analysis import get_flow
+from algos.flow_analysis import get_flow
 # from algos.fight.demo import fight
 # from algos.abnormal_behaviour.demo import abnormal
-from algos.poseEstimation.Main import get_Pose
+from algos.poseEstimation.Main import process_pose
 
 
-
-def load_Stream(InPath):
+def checkCamera(InPath):
     # cap = cv2.VideoCapture('rtsp://root:pass@10.144.129.107/axis-media/media.amp')
     stream = cv2.VideoCapture(InPath)
 
@@ -18,7 +17,6 @@ def load_Stream(InPath):
     else:
         print("OOPS!!! FAILED TO ESTABLISH CONNECTION. CHECK RTSP URL. PROCESS TERMINATED")
         sys.exit(-1)
-    return stream
 
 
 def make_output_vid(InFrame, InFrameRate, InFrameID=None, InTempVideoWriter=None):
@@ -26,7 +24,8 @@ def make_output_vid(InFrame, InFrameRate, InFrameID=None, InTempVideoWriter=None
     if InTempVideoWriter is True:
         InTempVideoWriter.release()
 
-    return cv2.VideoWriter('algos/vid/' + str(InFrameID) + '.avi', fourcc, InFrameRate, (InFrame.shape[1], InFrame.shape[0]))
+    return cv2.VideoWriter('algos/vid/' + str(InFrameID) + '.avi', fourcc, InFrameRate,
+                           (InFrame.shape[1], InFrame.shape[0]))
 
 
 def stream_Loop(InSettings, InIsStreamLoop=True):
@@ -40,20 +39,19 @@ def stream_Loop(InSettings, InIsStreamLoop=True):
     fight_label = None
     abnormal_label = None
 
-    stream = load_Stream(InSettings.CAMERA_PATH)
-    _, frame = stream.read()
+    capture = cv2.VideoCapture(InSettings.CAMERA_PATH)
+    _, frame = capture.read()
 
     tempVideoWriter = make_output_vid(frame, InSettings.FRAMERATE)
 
     while InIsStreamLoop:
-        frameId = stream.get(1)
+        frameId = capture.get(1)
+        ret, frame = capture.read()
 
-        ret, frame = stream.read()
         if ret:
             tempVideoWriter.write(frame)
 
         if frameId % (InSettings.FRAMERATE * InSettings.VIDEO_FREQUENCY) == 0:
-
             tempVideoWriter = make_output_vid(frame, InSettings.FRAMERATE, frameId, tempVideoWriter)
 
             x = temp
@@ -61,8 +59,8 @@ def stream_Loop(InSettings, InIsStreamLoop=True):
             frameNo = frameNo + 1
 
             if frameNo > 1:
-                get_Pose(frame)
-                # count, density_map = get_crowd.process_frame(frame)
+                process_pose(frame)
+                # count, density_map = get_crowd.process_pose(frame)
                 # flow_map, ave_flow_mag, ave_flow_dir = get_flow.process_flow(frame, p_frame)
 
                 p_frame = frame[:]
@@ -78,6 +76,7 @@ def stream_Loop(InSettings, InIsStreamLoop=True):
 
 
 def run(InSettings):
+    checkCamera(InSettings.CAMERA_PATH)
     while True:
         ori, den_map, cnt, f_mp, flow_dir, \
         flow_mag, fight_l, abnormal_l = stream_Loop(InSettings)
