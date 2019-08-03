@@ -30,7 +30,7 @@ def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_
             FileSize=741)
 
     backbone_net_ckpt_path = vgg19_path
-    if os.path.isfile(backbone_net_ckpt_path):
+    if os.path.isfile(backbone_net_ckpt_path) is False:
         print('Downloading vgg weights .. ')
         download_file('http://download2266.mediafire.com/aqy5u9s0t71g/y93ud1n21401ed8/vgg_19.ckpt',
                       backbone_net_ckpt_path, FileSize=548)
