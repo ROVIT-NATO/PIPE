@@ -1,155 +1,140 @@
 import cv2
-import datetime
-import os
-import time
-import math
+import UtilityManager
+import LogManager
+
+LogManager.displayLog('[Info] Loading Pose Detection ...', 'blue')
+from algos.poseEstimation import get_Pose
+#
+LogManager.displayLog('[Info] Loading Crowd Counting  ...', 'blue')
 from algos.counting import get_crowd
+
+LogManager.displayLog('[Info] Loading Flow Detection  ...', 'blue')
 from algos.flow_analysis import get_flow
+
+LogManager.displayLog('[Info] Loading Fight Detection ...', 'blue')
 from algos.fight.demo import fight
+
+LogManager.displayLog('[Info] Loading Abnormal Behaviour Detection ...', 'blue')
 from algos.abnormal_behaviour.demo import abnormal
-os.environ["CUDA_VISIBLE_DEVICES"]='1'
+
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+
+config = None
 
 
+def set_configuration(InValue):
+    global config
+    config = InValue
 
 
-# Consts to be read from setting file
+# main processFrame function connects to RTSP and distributes frames/clips to algorithms
+def processFrame(url, freq):
+    camera = cv2.VideoCapture(url)
+    ret, frame = camera.read()
+    if ret is False:
+        LogManager.displayLog('[Error] Could not load camera!','red')
 
-frameRate = 25
+    tempVideoWriter = UtilityManager.make_output_vid(InFrame=frame,
+                                                     InFrameRate=config.FRAMERATE,
+                                                     InVideoPath=config.TEMP_VIDEO_PATH,
+                                                     InFrameID=None,
+                                                     InVideoWriter= None)
 
-vidpath = (os.path.dirname(__file__) + '/algos/vid/')
-
-
-
-
-
-# Video witer function
-
-def make_output_vid(frame, frameId=None, out=None):
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    if out:
-        out.release()
-
-
-    return cv2.VideoWriter('algos/vid/' + str(frameId) + '.avi', fourcc, frameRate, (frame.shape[1], frame.shape[0]))
-
-
-# main linker function connects to RTSP and distributes frames/clips to algorithms
-
-def linker(url,freq,vid_len):
-
-
-    cap = cv2.VideoCapture(url)
-    frameRate = 25
-    # if cap.isOpened():
-    #     print("DRONE CONNECTION IS ESTABLISHED. PRESS Q TO TERMINATE")
-    # else:
-    #     print("OOPS!!! FAILED TO ESTABLISH CONNECTION. CHECK RTSP URL. PROCESS TERMINATED")
-
-    _,frame = cap.read()
-
-    out = make_output_vid(frame)
-
-    temp=[]
-    f = 0
-
-    p_frame = []
-
+    temp = []
+    frameNo = 0
+    previousFrame = []
 
     # infinite loop over the capture
+    streamLoop = True
+    while streamLoop:
 
-    Round = True
+        count, density_map = None, None
+        pose = None
+        fight_label = None
+        abnormal_label = None
+        flow_map, ave_flow_dir, ave_flow_mag = None, None, None
+        tempFrameID = None
 
-    while Round:
-
-        frameId = cap.get(1)
-
+        frameId = camera.get(1)
         # Capture frame-by-frame
-        ret, frame = cap.read()
+        ret, frame = camera.read()
+        # resize the image 50%
+        if config.IS_RESIZE_INPUT_IMAGE:
+            frame = UtilityManager.resize_image(frame, InRatio=50)
 
         if ret:
-            out.write(frame)
+            tempVideoWriter.write(frame)
 
         # Run the algorithm based on the given interval
+        if frameId % (config.FRAMERATE * freq) == 0:
+            tempVideoWriter = UtilityManager.make_output_vid(InFrame=frame,
+                                                             InFrameRate=config.FRAMERATE,
+                                                             InVideoPath=config.TEMP_VIDEO_PATH,
+                                                             InFrameID=frameId,
+                                                             InVideoWriter=tempVideoWriter)
+            tempFrameID = temp
+            temp = frameId
+            frameNo = frameNo + 1
 
-        if (frameId % (frameRate*freq) == 0):
+            if frameNo > 1:
+                flow_map, ave_flow_mag, ave_flow_dir = get_flow.process_flow(frame, previousFrame)
+                count, density_map = get_crowd.process_crowd(frame)
+                pose = get_Pose.process_pose(frame)
+            previousFrame = frame[:]
 
+        if (frameNo > 0) and (frameNo % 2) == 0:
+            fight_label = fight.process(config.TEMP_VIDEO_PATH, tempFrameID)
+            abnormal_label = abnormal.process(config.TEMP_VIDEO_PATH, tempFrameID)
 
-            out = make_output_vid(frame, frameId, out)
-            x=temp
-            temp=frameId
-            f = f+1
-
-
-
-            # algorithms to be added here
-
-            # print('----------------' + str(datetime.datetime.now()) + '------------------')
-
-
-
-
-            # count, density_map = get_crowd.process_frame(frame)
-            if (f>1):
-                count, density_map = get_crowd.process_frame(frame)
-                flow_map,ave_flow_mag,ave_flow_dir = get_flow.process_flow(frame,p_frame)
-
-            p_frame=frame[:]
-
-        if (f>0) and (f % 2) == 0:
-            fight_label = fight.process(vidpath,x)
-            abnormal_label = abnormal.process(vidpath,x)
-
-            f=f-1
-
-            # print('-------------------------------------------------------------')
-
-            Round =False
-
-            return frame,density_map,count,flow_map,ave_flow_dir,ave_flow_mag,fight_label,abnormal_label
+            frameNo = frameNo - 1
+            # streamLoop = False
+            return frame, density_map, count, flow_map, ave_flow_mag, ave_flow_dir, pose, fight_label, abnormal_label
 
 
+def run():
+    if UtilityManager.remove_Folder(config.TEMP_VIDEO_PATH) is False:
+        UtilityManager.create_Folder(config.TEMP_VIDEO_PATH)
 
+    UtilityManager.displayTimeStame()
 
+    # fig = plt.figure()
 
-cap = cv2.VideoCapture('rtsp://root:pass@10.144.129.107/axis-media/media.amp')
-if cap.isOpened():
-    print("DRONE CONNECTION IS ESTABLISHED. PRESS Q TO TERMINATE")
-else:
-    print("OOPS!!! FAILED TO ESTABLISH CONNECTION. CHECK RTSP URL. PROCESS TERMINATED")
+    # Main Loop
+    while True:
+        ImgFromCamera, \
+        density_map, count, \
+        flow_map, ave_flow_mag, ave_flow_dir, \
+        pose, \
+        fight_label, \
+        abnormal_label = processFrame(config.CAMERA_PATH, 5)
 
-print('--------------------' + str(datetime.datetime.now()) + '-----------------------')
+        UtilityManager.displayTimeStame()
 
-f = plt.figure()
+        if count:
+            LogManager.displayLog(f'Crowd Count:{count}', 'white')
+        if fight_label:
+            if fight_label == 'noFight':
+                LogManager.displayLog(f'Fight Detection Results : {fight_label}', 'white')
+            else:
+                LogManager.displayLog(f'Fight Detection Results : {fight_label}', 'red')
+        if abnormal_label:
+            if abnormal_label == 'low':
+                LogManager.displayLog(f'Crowd abnormality Results :{abnormal_label} ', 'white')
+            else:
+                LogManager.displayLog(f'Crowd abnormality Results :{abnormal_label} ', 'red')
+        if ave_flow_dir:
+            LogManager.displayLog(f'Ave flow direction = {ave_flow_dir}', 'white')
+            LogManager.displayLog(f'Ave flow Magnitude  = {ave_flow_mag}', 'white')
 
-while True:
-
-
-    ori,den_map,cnt,f_mp,flow_dir,flow_mag,fight_l,abnormal_l  = linker('rtsp://root:pass@10.144.129.107/axis-media/media.amp',5,5)
-
-    print('--------------------' + str(datetime.datetime.now()) + '-----------------------')
-
-
-
-    f.add_subplot(1, 3, 1)
-    plt.imshow(den_map)
-    f.add_subplot(1, 3, 2)
-    plt.imshow(ori)
-    f.add_subplot(1, 3, 3)
-    plt.imshow(f_mp[:, :, 0])
-
-    plt.pause(0.001)
-
-
-
-
-
-
-
-
-
-
-
-
-
+        # fig.add_subplot(1, 3, 1)
+        # plt.imshow(ImgFromCamera[:, :, ::-1])
+        # if density_map is not None:
+        #     fig.add_subplot(1, 3, 2)
+        #     plt.imshow(density_map)
+        # if flow_map is not None:
+        #     fig.add_subplot(1, 3, 3)
+        #     plt.imshow(flow_map[:, :, 0])
+        # if pose is not None:
+        #     fig.add_subplot(1, 3, 3)
+        #     plt.imshow(pose)
+        # plt.pause(0.001)

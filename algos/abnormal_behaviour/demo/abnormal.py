@@ -17,20 +17,10 @@ predictor = VGG16BidirectionalLSTMVideoClassifier()
 predictor.load_model(config_file_path, weight_file_path)
 
 
-def process(vidpath,frameId):
+def process(vidpath, frameId):
+    videoFile = f'{vidpath}/{frameId}.avi'
+    predicted_label = predictor.predict(videoFile)
 
-    vid = vidpath + str(frameId) +'.avi'
-    vid1 = vidpath + 'None.avi'
-    # print('vid currently in process = ', vid)
-
-
-    predicted_label = predictor.predict(vid)
-    print('Crowd abnormality Results : ' + predicted_label)
-
-    os.remove(vid)
+    os.remove(videoFile)
 
     return predicted_label
-
-
-
-

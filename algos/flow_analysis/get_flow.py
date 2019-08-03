@@ -8,15 +8,11 @@ import urllib.request
 import sys
 
 
-from algos.flow_analysis.FlowNet2_src import flow_to_image
-
+# from algos.flow_analysis.FlowNet2_src import flow_to_image
 from algos.flow_analysis.FlowNet2_src import FlowNet2
 
-model=[]
-
-path= os.path.join(os.path.dirname(__file__)) + '/FlowNet2_src/pretrained/FlowNet2_checkpoint.pth.tar'
-
-
+model = []
+path = os.path.dirname(__file__) + '/FlowNet2_src/pretrained/FlowNet2_checkpoint.pth.tar'
 
 def reporthook(block_num, block_size, total_size):
     read_so_far = block_num * block_size
@@ -29,7 +25,6 @@ def reporthook(block_num, block_size, total_size):
             sys.stderr.write("\n")
     else:  # total size is unknown
         sys.stderr.write("read %d\n" % (read_so_far,))
-
 
 flownet2 = FlowNet2()
 
@@ -46,21 +41,13 @@ pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
 model_dict.update(pretrained_dict)
 flownet2.load_state_dict(model_dict)
 
-
-# CUDA WARNING
-
 flownet2.cuda()
 
 model = flownet2
 
 
-
-def process_flow(frame,p_frame):
-
-
+def process_flow(frame, p_frame):
     height, width = frame.shape[:2]
-
-
 
     fr1 = cv2.resize(frame, (384, 512))
     fr2 = cv2.resize(p_frame, (384, 512))
@@ -94,30 +81,8 @@ def process_flow(frame,p_frame):
 
     ave_flow_mag.append(mag)
     ave_flow_dir.append(direction)
+    #
+    # print('Ave flow direction = ', ave_flow_dir)
+    # print('Ave flow Magnitude  = ', ave_flow_mag)
 
-    print('Ave flow direction = ', ave_flow_dir)
-    print('Ave flow Magnitude  = ', ave_flow_mag)
-
-
-
-
-    return flow_uv,ave_flow_mag,ave_flow_dir
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return flow_uv, ave_flow_mag, ave_flow_dir

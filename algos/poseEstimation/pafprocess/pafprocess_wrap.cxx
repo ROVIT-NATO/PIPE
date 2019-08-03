@@ -3021,7 +3021,7 @@ static swig_module_info swig_module = {swig_types, 6, 0, 0, 0, 0};
 
 #if (PY_VERSION_HEX <= 0x02000000)
 # if !defined(SWIG_PYTHON_CLASSIC)
-#  error "This python version requires swig to be run with the '-classic' option"
+#  error "This python version requires swig to be process_pose with the '-classic' option"
 # endif
 #endif
 

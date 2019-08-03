@@ -65,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument(
         '--name',
-        default='run',
+        default='process_pose',
         type=str,
         help='a name to append to the save directory')
     parser.add_argument(
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         '--render_validation',
         action='store_true',
         help=
-        'run inference (save flows to file) and every validation_frequency epoch'
+        'process_pose inference (save flows to file) and every validation_frequency epoch'
     )
 
     parser.add_argument('--inference', action='store_true')
