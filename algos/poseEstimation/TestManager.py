@@ -1,7 +1,10 @@
-
 # import argparse
 
+import os
+import requests
+
 import tensorflow as tf
+
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 import cv2
@@ -19,7 +22,18 @@ def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_
     # tf.logging.set_verbosity(tf.logging.WARN)
 
     checkpoint_path = InCheckPointPath
+    if os.path.isfile(checkpoint_path + 'model-59000.ckpt.data-00000-of-00001') is False:
+        print('Downloading checkpoints .. ')
+        download_file(
+            'http://download2263.mediafire.com/7tq403a7wdng/fs9ag3b1bdihjtd/model-59000.ckpt.data-00000-of-00001',
+            InCheckPointPath + 'model-59000.ckpt.data-00000-of-00001',
+            FileSize=741)
+
     backbone_net_ckpt_path = vgg19_path
+    if os.path.isfile(backbone_net_ckpt_path):
+        print('Downloading vgg weights .. ')
+        download_file('http://download2266.mediafire.com/aqy5u9s0t71g/y93ud1n21401ed8/vgg_19.ckpt',
+                      backbone_net_ckpt_path, FileSize=548)
     # logger.info('checkpoint_path: ' + checkpoint_path)
 
     with tf.name_scope('inputs'):
@@ -74,7 +88,6 @@ def processFrame(InFrame, InTensorflowSession):
     raw_img = InTensorflowSession[4]
     img_size = InTensorflowSession[5]
 
-
     ori_w = InFrame.shape[1]
     ori_h = InFrame.shape[0]
 
@@ -112,3 +125,20 @@ def processFrame(InFrame, InTensorflowSession):
     # cv2.imshow(' ', image)
     cv2.imwrite('/media/ramdisk/output.png', InFrame)
     return InFrame
+
+
+#
+
+
+def download_file(url, fileName, FileSize):
+    # local_filename =
+    r = requests.get(url, stream=True)
+    f = open(fileName, 'wb')
+    i = 0
+    for chunk in r.iter_content():
+        if i % (1024 * 1024) == 0:
+            print(f'Loading {(i // (1024 * 1024)) / 100} MB of {FileSize} MB')
+        f.write(chunk)
+        i += 100
+    f.close()
+    return

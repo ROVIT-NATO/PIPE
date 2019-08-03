@@ -97,7 +97,7 @@ def run():
 
     UtilityManager.displayTimeStame()
 
-    # fig = plt.figure()
+    fig = plt.figure()
 
     # Main Loop
     while True:
@@ -126,15 +126,15 @@ def run():
             LogManager.displayLog(f'Ave flow direction = {ave_flow_dir}', 'white')
             LogManager.displayLog(f'Ave flow Magnitude  = {ave_flow_mag}', 'white')
 
-        # fig.add_subplot(1, 3, 1)
-        # plt.imshow(ImgFromCamera[:, :, ::-1])
-        # if density_map is not None:
-        #     fig.add_subplot(1, 3, 2)
-        #     plt.imshow(density_map)
-        # if flow_map is not None:
-        #     fig.add_subplot(1, 3, 3)
-        #     plt.imshow(flow_map[:, :, 0])
-        # if pose is not None:
-        #     fig.add_subplot(1, 3, 3)
-        #     plt.imshow(pose)
-        # plt.pause(0.001)
+        fig.add_subplot(1, 3, 1)
+        plt.imshow(ImgFromCamera[:, :, ::-1])
+        if density_map is not None:
+            fig.add_subplot(1, 3, 2)
+            plt.imshow(density_map)
+        if flow_map is not None:
+            fig.add_subplot(1, 3, 3)
+            plt.imshow(flow_map[:, :, 0])
+        if pose is not None:
+            fig.add_subplot(1, 3, 4)
+            plt.imshow(pose)
+        plt.pause(0.001)
