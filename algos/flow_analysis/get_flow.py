@@ -31,10 +31,14 @@ flownet2 = FlowNet2()
 if os.path.isfile(path):
     pretrained_dict = torch.load(path)['state_dict']
 else:
+    path1 = os.path.dirname(__file__) + '/FlowNet2_src/pretrained/'
+    os.makedirs(path1)
     print('flow weights not found.. downloading ')
 
     urllib.request.urlretrieve(
-        "http://download1650.mediafire.com/byginqzgf2sg/vrir61dv2ed93ty/FlowNet2_checkpoint.pth.tar", path , reporthook=reporthook)
+        "http://download1650.mediafire.com/jri7ygxfaajg/vrir61dv2ed93ty/FlowNet2_checkpoint.pth.tar", path , reporthook=reporthook)
+
+    pretrained_dict = torch.load(path)['state_dict']
 
 model_dict = flownet2.state_dict()
 pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}

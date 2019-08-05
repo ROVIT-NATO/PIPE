@@ -1,10 +1,9 @@
 # import argparse
 
 import os
-import requests
+# import requests
 
 import tensorflow as tf
-
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 import cv2
@@ -16,7 +15,7 @@ from algos.poseEstimation.cpm import PafNet
 # import common
 from algos.poseEstimation.tensblur.smoother import Smoother
 from algos.poseEstimation.estimator import PoseEstimator, TfPoseEstimator
-
+import urllib.request
 
 def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_19.ckpt', use_bn=False):
     # tf.logging.set_verbosity(tf.logging.WARN)
@@ -24,16 +23,20 @@ def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_
     checkpoint_path = InCheckPointPath
     if os.path.isfile(checkpoint_path + 'model-59000.ckpt.data-00000-of-00001') is False:
         print('Downloading checkpoints .. ')
-        download_file(
-            'http://download2263.mediafire.com/7tq403a7wdng/fs9ag3b1bdihjtd/model-59000.ckpt.data-00000-of-00001',
-            InCheckPointPath + 'model-59000.ckpt.data-00000-of-00001',
-            FileSize=741)
+        # download_file(
+        #     'http://download2263.mediafire.com/7tq403a7wdng/fs9ag3b1bdihjtd/model-59000.ckpt.data-00000-of-00001',
+        #     InCheckPointPath + 'model-59000.ckpt.data-00000-of-00001',
+        #     FileSize=741)
+        urllib.request.urlretrieve('http://download2263.mediafire.com/7tq403a7wdng/fs9ag3b1bdihjtd/model-59000.ckpt.data-00000-of-00001', InCheckPointPath+'model-59000.ckpt.data-00000-of-00001',reporthook=reporthook)
+
 
     backbone_net_ckpt_path = vgg19_path
-    if os.path.isfile(backbone_net_ckpt_path):
+    if os.path.isfile(backbone_net_ckpt_path) is False:
         print('Downloading vgg weights .. ')
-        download_file('http://download2266.mediafire.com/aqy5u9s0t71g/y93ud1n21401ed8/vgg_19.ckpt',
-                      backbone_net_ckpt_path, FileSize=548)
+        # download_file('http://download2266.mediafire.com/aqy5u9s0t71g/y93ud1n21401ed8/vgg_19.ckpt',
+        #               backbone_net_ckpt_path, FileSize=548)
+        urllib.request.urlretrieve( 'http://download2266.mediafire.com/aqy5u9s0t71g/y93ud1n21401ed8/vgg_19.ckpt',
+            backbone_net_ckpt_path + '/vgg_19.ckpt', reporthook=reporthook)
     # logger.info('checkpoint_path: ' + checkpoint_path)
 
     with tf.name_scope('inputs'):
@@ -123,22 +126,35 @@ def processFrame(InFrame, InTensorflowSession):
     # bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
     # image = TfPoseEstimator.draw_humans(image, bodys, imgcopy=False)
     # cv2.imshow(' ', image)
-    cv2.imwrite('/media/ramdisk/output.png', InFrame)
+    # cv2.imwrite('/media/ramdisk/output.png', InFrame)
     return InFrame
 
 
 #
 
 
-def download_file(url, fileName, FileSize):
-    # local_filename =
-    r = requests.get(url, stream=True)
-    f = open(fileName, 'wb')
-    i = 0
-    for chunk in r.iter_content():
-        if i % (1024 * 1024) == 0:
-            print(f'Loading {(i // (1024 * 1024)) / 100} MB of {FileSize} MB')
-        f.write(chunk)
-        i += 100
-    f.close()
-    return
+# def download_file(url, fileName, FileSize):
+#     # local_filename =
+#     r = requests.get(url, stream=True)
+#     f = open(fileName, 'wb')
+#     i = 0
+#     for chunk in r.iter_content():
+#         if i % (1024 * 1024) == 0:
+#             print(f'Loading {(i // (1024 * 1024)) / 100} MB of {FileSize} MB')
+#         f.write(chunk)
+#         i += 100
+#     f.close()
+#     return
+
+import sys
+def reporthook(block_num, block_size, total_size):
+    read_so_far = block_num * block_size
+    if total_size > 0:
+        percent = read_so_far * 1e2 / total_size
+        s = "\r%5.1f%% %*d / %d" % (
+            percent, len(str(total_size)), read_so_far, total_size)
+        sys.stderr.write(s)
+        if read_so_far >= total_size:  # near the end
+            sys.stderr.write("\n")
+    else:  # total size is unknown
+        sys.stderr.write("read %d\n" % (read_so_far,))
