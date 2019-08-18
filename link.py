@@ -51,11 +51,11 @@ def processFrame(url, freq):
     streamLoop = True
     while streamLoop:
 
-        count, density_map = None, None
+        count, density_map = 'Processing .. ', None
         pose = None
-        fight_label = None
-        abnormal_label = None
-        flow_map, ave_flow_dir, ave_flow_mag = None, None, None
+        fight_label = 'Processing .. '
+        abnormal_label = 'Processing .. '
+        flow_map, ave_flow_dir, ave_flow_mag = None, 'Processing .. ', 'Processing .. '
         tempFrameID = None
 
         frameId = camera.get(1)
@@ -90,8 +90,6 @@ def processFrame(url, freq):
             abnormal_label = abnormal.process(config.TEMP_VIDEO_PATH, tempFrameID)
 
             frameNo = frameNo - 1
-            # streamLoop = False
-            # flow_map[:, :, 0]
             return frame, \
                    density_map, count, \
                    flow_map, np.squeeze(ave_flow_mag), np.squeeze(ave_flow_dir), \
@@ -116,7 +114,7 @@ def run():
     # ave_flow_dir, ave_flow_mag =0,0
 
     window = GUIManager.get_window()
-    window.create_plot(InFigureSize=(10, 10), InColumns=2, InRows=2)
+    window.create_plot(InFigureSize=(10, 10), InColumns=2, InRows=2, InTitle='Kingston University')
 
     while True:
         ImgFromCamera, \
@@ -141,8 +139,8 @@ def run():
             window.add_text(f'Crowd abnormality : {abnormal_label} ', InXPos=-200, InYPos=315, InColor='green')
         else:
             window.add_text(f'Crowd abnormality : {abnormal_label} ', InXPos=-200, InYPos=315, InColor='red')
-        window.add_text(f'Ave flow direction : {np.around(ave_flow_dir,5)}', InXPos=100, InYPos=300, InColor='yellow')
-        window.add_text(f'Ave flow Magnitude : {np.around(ave_flow_mag,5)}', InXPos=100, InYPos=320, InColor='purple')
+        window.add_text(f'Ave flow direction : {np.around(ave_flow_dir,5)}', InXPos=120, InYPos=300, InColor='brown')
+        window.add_text(f'Ave flow Magnitude : {np.around(ave_flow_mag,5)}', InXPos=120, InYPos=320, InColor='purple')
         window.show()
 
 

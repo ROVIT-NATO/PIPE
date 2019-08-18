@@ -13,8 +13,10 @@ class get_window:
         self.rows = None
         self.sub_plot_list = []
 
-    def create_plot(self, InFigureSize=(8, 8), InColumns=2, InRows=2):
+    def create_plot(self, InFigureSize=(8, 8), InColumns=2, InRows=2, InTitle='Kingston University'):
         self.fig = plt.figure(figsize=InFigureSize)
+        self.fig = plt.gcf()
+        self.fig.canvas.set_window_title(InTitle)
         self.columns = InColumns
         self.rows = InRows
 
