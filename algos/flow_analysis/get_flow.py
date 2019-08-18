@@ -8,8 +8,9 @@ import urllib.request
 import sys
 
 
-# from algos.flow_analysis.FlowNet2_src import flow_to_image
+from algos.flow_analysis.FlowNet2_src import flow_to_image
 from algos.flow_analysis.FlowNet2_src import FlowNet2
+
 
 model = []
 path = os.path.dirname(__file__) + '/FlowNet2_src/pretrained/FlowNet2_checkpoint.pth.tar'
@@ -88,5 +89,5 @@ def process_flow(frame, p_frame):
     #
     # print('Ave flow direction = ', ave_flow_dir)
     # print('Ave flow Magnitude  = ', ave_flow_mag)
-
+    flow_uv = flow_to_image(flow_uv)
     return flow_uv, ave_flow_mag, ave_flow_dir

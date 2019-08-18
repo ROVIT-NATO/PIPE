@@ -59,7 +59,6 @@ def load_net(fname, net):
         v.copy_(param)
 
 
-
 def np_to_variable(x, is_cuda=True, is_training=False, dtype=torch.FloatTensor):
     if is_training:
         v = Variable(torch.from_numpy(x).type(dtype))

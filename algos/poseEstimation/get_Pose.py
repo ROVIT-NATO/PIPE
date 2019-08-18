@@ -9,7 +9,8 @@ session = TestManager.init(InCheckPointPath=os.path.dirname(__file__) + '/checkp
 
 def process_pose(InFrame):
     # convert BGR to RGB
-    return cv2.cvtColor(TestManager.processFrame(InFrame, session),cv2.COLOR_BGR2RGB)
+    frame = InFrame.copy()
+    return cv2.cvtColor(TestManager.processFrame(frame, session),cv2.COLOR_BGR2RGB)
 
 # if __name__ == '__main__':
 #     # session = TestManager.init(InCheckPointPath='checkpoints/train/',

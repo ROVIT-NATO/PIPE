@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
+
 # import matplotlib.animation as anim
 
 plt.rcParams['toolbar'] = 'None'
 plt.ion()
+
 
 class get_window:
     def __init__(self):
@@ -31,11 +33,9 @@ class get_window:
                  fontweight=Infontweight)
 
     def show(self):
-
         plt.draw()
-        plt.pause(0.001)
+        plt.pause(0.0001)
         plt.clf()
-
 
 # img = np.random.randint(10, size=(256, 256))
 # window = get_window()

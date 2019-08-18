@@ -1,6 +1,7 @@
 import cv2
 import UtilityManager
 import LogManager
+import numpy as np
 
 LogManager.displayLog('[Info] Loading Pose Detection ...', 'blue')
 from algos.poseEstimation import get_Pose
@@ -90,8 +91,13 @@ def processFrame(url, freq):
 
             frameNo = frameNo - 1
             # streamLoop = False
-            return frame, density_map, count, flow_map[:, :,
-                                              0], ave_flow_mag, ave_flow_dir, pose, fight_label, abnormal_label
+            # flow_map[:, :, 0]
+            return frame, \
+                   density_map, count, \
+                   flow_map, np.squeeze(ave_flow_mag), np.squeeze(ave_flow_dir), \
+                   pose, \
+                   fight_label, \
+                   abnormal_label
 
 
 def run():
@@ -121,7 +127,7 @@ def run():
         abnormal_label = processFrame(config.CAMERA_PATH, 5)
 
         UtilityManager.displayTimeStame()
-        window.add_sub_plot(ImgFromCamera, 1, 'Drone View')
+        window.add_sub_plot(cv2.cvtColor(ImgFromCamera, cv2.COLOR_BGR2RGB), 1, 'Drone View')
         window.add_sub_plot(density_map, 2, 'Density Estimation')
         window.add_sub_plot(pose, 3, 'Pose Estimation')
         window.add_sub_plot(flow_map, 4, 'Flow Estimation')
@@ -135,8 +141,8 @@ def run():
             window.add_text(f'Crowd abnormality : {abnormal_label} ', InXPos=-200, InYPos=315, InColor='green')
         else:
             window.add_text(f'Crowd abnormality : {abnormal_label} ', InXPos=-200, InYPos=315, InColor='red')
-        window.add_text(f'Ave flow direction : {ave_flow_dir}', InXPos=100, InYPos=300, InColor='black')
-        window.add_text(f'Ave flow Magnitude : {ave_flow_mag}', InXPos=100, InYPos=320, InColor='black')
+        window.add_text(f'Ave flow direction : {np.around(ave_flow_dir,5)}', InXPos=100, InYPos=300, InColor='yellow')
+        window.add_text(f'Ave flow Magnitude : {np.around(ave_flow_mag,5)}', InXPos=100, InYPos=320, InColor='purple')
         window.show()
 
 
