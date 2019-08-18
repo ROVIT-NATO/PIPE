@@ -5,13 +5,15 @@ import cv2
 import sys
 import LogManager
 import shutil
+import numpy as np
 
 
 def set_CUDA_Environment(InGPU='0'):
     os.environ['CUDA_VISIBLE_DEVICES'] = InGPU
+    os.environ['OPENCV_FFMPEG_CAPTURE_OPTIONS'] = 'rtsp_transport;udp'
 
 
-def make_output_vid(InFrame, InFrameRate, InVideoPath='algos/vid/', InFrameID=None, InVideoWriter=None ):
+def make_output_vid(InFrame, InFrameRate, InVideoPath='algos/vid/', InFrameID=None, InVideoWriter=None):
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     if InVideoWriter:
         InVideoWriter.release()
@@ -30,7 +32,6 @@ def Is_File_Exist(InPath):
 
 
 def check_Camera(InPath):
-    # cap = cv2.VideoCapture('rtsp://root:pass@10.144.129.107/axis-media/media.amp')
     stream = cv2.VideoCapture(InPath)
 
     if stream.isOpened():
@@ -69,7 +70,7 @@ def create_Folder(InPath):
         os.makedirs(InPath)
         LogManager.displayLog(f'[Info] Folder {InPath} is created', 'blue')
     else:
-        LogManager.displayLog(f'[Info] Folder {InPath} already exist.','red')
+        LogManager.displayLog(f'[Info] Folder {InPath} already exist.', 'red')
 
 
 def remove_Folder(InPath):
@@ -80,3 +81,8 @@ def remove_Folder(InPath):
     except:
         LogManager.displayLog(f'[Info] Folder {InPath} not found!')
         return False
+
+
+def convert_InRange(InImage, InMin, InMax):
+    # return (InImage - np.min(InImage)) * (InMax - InMin) / (np.max(InImage) - np.min(InImage)) + InMin
+    return (InImage - np.min(InImage)) * (InMax - InMin) / (np.max(InImage) - np.min(InImage)) + InMin

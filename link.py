@@ -4,6 +4,7 @@ import LogManager
 
 LogManager.displayLog('[Info] Loading Pose Detection ...', 'blue')
 from algos.poseEstimation import get_Pose
+
 #
 LogManager.displayLog('[Info] Loading Crowd Counting  ...', 'blue')
 from algos.counting import get_crowd
@@ -17,9 +18,10 @@ from algos.fight.demo import fight
 LogManager.displayLog('[Info] Loading Abnormal Behaviour Detection ...', 'blue')
 from algos.abnormal_behaviour.demo import abnormal
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 config = None
+import GUIManager
 
 
 def set_configuration(InValue):
@@ -32,13 +34,13 @@ def processFrame(url, freq):
     camera = cv2.VideoCapture(url)
     ret, frame = camera.read()
     if ret is False:
-        LogManager.displayLog('[Error] Could not load camera!','red')
+        LogManager.displayLog('[Error] Could not load camera!', 'red')
 
     tempVideoWriter = UtilityManager.make_output_vid(InFrame=frame,
                                                      InFrameRate=config.FRAMERATE,
                                                      InVideoPath=config.TEMP_VIDEO_PATH,
                                                      InFrameID=None,
-                                                     InVideoWriter= None)
+                                                     InVideoWriter=None)
 
     temp = []
     frameNo = 0
@@ -88,18 +90,28 @@ def processFrame(url, freq):
 
             frameNo = frameNo - 1
             # streamLoop = False
-            return frame, density_map, count, flow_map, ave_flow_mag, ave_flow_dir, pose, fight_label, abnormal_label
+            return frame, density_map, count, flow_map[:, :,
+                                              0], ave_flow_mag, ave_flow_dir, pose, fight_label, abnormal_label
 
 
 def run():
-    if UtilityManager.remove_Folder(config.TEMP_VIDEO_PATH) is False:
-        UtilityManager.create_Folder(config.TEMP_VIDEO_PATH)
+    UtilityManager.remove_Folder(config.TEMP_VIDEO_PATH)
+    UtilityManager.create_Folder(config.TEMP_VIDEO_PATH)
 
     UtilityManager.displayTimeStame()
 
-    fig = plt.figure()
+    # ImgFromCamera= np.zeros((256,256))
+    # density_map = np.zeros((256, 256))
+    # pose = np.zeros((256, 256))
+    # flow_map = np.zeros((256, 256))
+    # count =0
+    # fight_label= 'noFight'
+    # abnormal_label= 'low'
+    # ave_flow_dir, ave_flow_mag =0,0
 
-    # Main Loop
+    window = GUIManager.get_window()
+    window.create_plot(InFigureSize=(10, 10), InColumns=2, InRows=2)
+
     while True:
         ImgFromCamera, \
         density_map, count, \
@@ -109,32 +121,24 @@ def run():
         abnormal_label = processFrame(config.CAMERA_PATH, 5)
 
         UtilityManager.displayTimeStame()
+        window.add_sub_plot(ImgFromCamera, 1, 'Drone View')
+        window.add_sub_plot(density_map, 2, 'Density Estimation')
+        window.add_sub_plot(pose, 3, 'Pose Estimation')
+        window.add_sub_plot(flow_map, 4, 'Flow Estimation')
 
-        if count:
-            LogManager.displayLog(f'Crowd Count:{count}', 'white')
-        if fight_label:
-            if fight_label == 'noFight':
-                LogManager.displayLog(f'Fight Detection Results : {fight_label}', 'white')
-            else:
-                LogManager.displayLog(f'Fight Detection Results : {fight_label}', 'red')
-        if abnormal_label:
-            if abnormal_label == 'low':
-                LogManager.displayLog(f'Crowd abnormality Results :{abnormal_label} ', 'white')
-            else:
-                LogManager.displayLog(f'Crowd abnormality Results :{abnormal_label} ', 'red')
-        if ave_flow_dir:
-            LogManager.displayLog(f'Ave flow direction = {ave_flow_dir}', 'white')
-            LogManager.displayLog(f'Ave flow Magnitude  = {ave_flow_mag}', 'white')
+        window.add_text(f'Density count : {count}', InXPos=-500, InYPos=300, InColor='blue')
+        if fight_label == 'noFight':
+            window.add_text(f'Fight Detection : {fight_label}', InXPos=-500, InYPos=325, InColor='green')
+        else:
+            window.add_text(f'Fight Detection : {fight_label}', InXPos=-500, InYPos=325, InColor='red')
+        if abnormal_label == 'low':
+            window.add_text(f'Crowd abnormality : {abnormal_label} ', InXPos=-200, InYPos=315, InColor='green')
+        else:
+            window.add_text(f'Crowd abnormality : {abnormal_label} ', InXPos=-200, InYPos=315, InColor='red')
+        window.add_text(f'Ave flow direction : {ave_flow_dir}', InXPos=100, InYPos=300, InColor='black')
+        window.add_text(f'Ave flow Magnitude : {ave_flow_mag}', InXPos=100, InYPos=320, InColor='black')
+        window.show()
 
-        fig.add_subplot(1, 3, 1)
-        plt.imshow(ImgFromCamera[:, :, ::-1])
-        if density_map is not None:
-            fig.add_subplot(1, 3, 2)
-            plt.imshow(density_map)
-        if flow_map is not None:
-            fig.add_subplot(1, 3, 3)
-            plt.imshow(flow_map[:, :, 0])
-        if pose is not None:
-            fig.add_subplot(1, 3, 4)
-            plt.imshow(pose)
-        plt.pause(0.001)
+
+
+
