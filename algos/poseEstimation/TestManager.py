@@ -27,7 +27,7 @@ def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_
         #     'http://download2263.mediafire.com/7tq403a7wdng/fs9ag3b1bdihjtd/model-59000.ckpt.data-00000-of-00001',
         #     InCheckPointPath + 'model-59000.ckpt.data-00000-of-00001',
         #     FileSize=741)
-        urllib.request.urlretrieve('http://download2263.mediafire.com/7tq403a7wdng/fs9ag3b1bdihjtd/model-59000.ckpt.data-00000-of-00001', InCheckPointPath+'model-59000.ckpt.data-00000-of-00001',reporthook=reporthook)
+        urllib.request.urlretrieve('http://download1489.mediafire.com/l58lwv1yt1lg/fs9ag3b1bdihjtd/model-59000.ckpt.data-00000-of-00001', InCheckPointPath+'model-59000.ckpt.data-00000-of-00001',reporthook=reporthook)
 
 
     backbone_net_ckpt_path = vgg19_path
@@ -35,7 +35,7 @@ def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_
         print('Downloading vgg weights .. ')
         # download_file('http://download2266.mediafire.com/aqy5u9s0t71g/y93ud1n21401ed8/vgg_19.ckpt',
         #               backbone_net_ckpt_path, FileSize=548)
-        urllib.request.urlretrieve( 'http://download2266.mediafire.com/aqy5u9s0t71g/y93ud1n21401ed8/vgg_19.ckpt',
+        urllib.request.urlretrieve( 'http://download1640.mediafire.com/o6bzkovcuxgg/y93ud1n21401ed8/vgg_19.ckpt',
             backbone_net_ckpt_path + '/vgg_19.ckpt', reporthook=reporthook)
     # logger.info('checkpoint_path: ' + checkpoint_path)
 
