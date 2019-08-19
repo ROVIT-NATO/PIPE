@@ -37,7 +37,7 @@ else:
     print('flow weights not found.. downloading ')
 
     urllib.request.urlretrieve(
-        "http://download1650.mediafire.com/jri7ygxfaajg/vrir61dv2ed93ty/FlowNet2_checkpoint.pth.tar", path , reporthook=reporthook)
+        "http://download1589.mediafire.com/uiocw79svv9g/vrir61dv2ed93ty/FlowNet2_checkpoint.pth.tar", path , reporthook=reporthook)
 
     pretrained_dict = torch.load(path)['state_dict']
 
