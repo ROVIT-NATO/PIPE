@@ -1,7 +1,7 @@
 import sys
 import os
 stderr = sys.stderr
-os.environ["CUDA_VISIBLE_DEVICES"]='1'
+os.environ["CUDA_VISIBLE_DEVICES"]='0'
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 sys.stderr = open(os.devnull, 'w')
 from keras.layers import Dense, Activation, Dropout, Bidirectional
