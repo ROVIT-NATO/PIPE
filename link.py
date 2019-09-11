@@ -13,11 +13,11 @@ from algos.poseEstimation import get_Pose
 # LogManager.displayLog('[Info] Loading Flow Detection  ...', 'blue')
 # from algos.flow_analysis import get_flow
 #
-# LogManager.displayLog('[Info] Loading Fight Detection ...', 'blue')
+LogManager.displayLog('[Info] Loading Fight Detection ...', 'blue')
 from algos.fight.demo import fight
 
-# LogManager.displayLog('[Info] Loading Abnormal Behaviour Detection ...', 'blue')
-# from algos.abnormal_behaviour.demo import abnormal
+LogManager.displayLog('[Info] Loading Abnormal Behaviour Detection ...', 'blue')
+from algos.abnormal_behaviour.demo import abnormal
 
 # import matplotlib.pyplot as plt
 
@@ -57,15 +57,16 @@ def processFrame(url, freq):
     previousFrame = []
 
     # infinite loop over the capture
-    streamLoop = True
-    while streamLoop:
+    # streamLoop = True
 
-        count, density_map = 'Processing .. ', None
-        pose = None
-        fight_label = 'Processing .. '
-        abnormal_label = 'Processing .. '
-        flow_map, ave_flow_dir, ave_flow_mag = None, 'Processing .. ', 'Processing .. '
-        tempFrameID = None
+    count, density_map = 'Processing .. ', np.zeros((256, 256), dtype=np.uint8)
+    pose = np.zeros((256, 256), dtype=np.uint8)
+    fight_label = 'Processing .. '
+    abnormal_label = 'Processing .. '
+    flow_map, ave_flow_dir, ave_flow_mag = np.zeros((256, 256), dtype=np.uint8), 'Processing .. ', 'Processing .. '
+    tempFrameID = None
+
+    while True:
 
         frameId = camera.get(1)
         # Capture frame-by-frame
@@ -96,8 +97,8 @@ def processFrame(url, freq):
             previousFrame = frame[:]
 
         if (frameNo > 0) and (frameNo % 2) == 0:
-            # fight_label = fight.process(config.TEMP_VIDEO_PATH, tempFrameID)
-            # abnormal_label = abnormal.process(config.TEMP_VIDEO_PATH, tempFrameID)
+            fight_label = fight.process(config.TEMP_VIDEO_PATH, tempFrameID)
+            abnormal_label = abnormal.process(config.TEMP_VIDEO_PATH, tempFrameID)
 
             frameNo = frameNo - 1
             return frame, \
@@ -127,9 +128,9 @@ def run():
 
         UtilityManager.displayTimeStame()
         window.add_sub_plot(cv2.cvtColor(ImgFromCamera, cv2.COLOR_BGR2RGB), 1, 'Drone View')
-        # window.add_sub_plot(density_map, 2, 'Density Estimation')
-        window.add_sub_plot(pose, 2, 'Pose Estimation')
-        # window.add_sub_plot(flow_map, 4, 'Flow Estimation')
+        window.add_sub_plot(density_map, 2, 'Density Estimation')
+        window.add_sub_plot(pose, 3, 'Pose Estimation')
+        window.add_sub_plot(flow_map, 4, 'Flow Estimation')
 
         window.add_text(f'Density count : {count}', InXPos=-500, InYPos=300, InColor='blue')
         if fight_label == 'noFight':
