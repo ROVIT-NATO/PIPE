@@ -1,10 +1,8 @@
+import numpy as np
 import matplotlib.pyplot as plt
-
-# import matplotlib.animation as anim
 
 plt.rcParams['toolbar'] = 'None'
 plt.ion()
-
 
 class get_window:
     def __init__(self):

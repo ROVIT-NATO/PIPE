@@ -1,8 +1,8 @@
 import sys
 import os
 stderr = sys.stderr
-os.environ["CUDA_VISIBLE_DEVICES"]='0'
-os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+# os.environ["CUDA_VISIBLE_DEVICES"]='0'
+# os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 sys.stderr = open(os.devnull, 'w')
 from keras.layers import Dense, Activation, Dropout, Bidirectional
 from keras.layers.recurrent import LSTM
@@ -27,8 +27,8 @@ HIDDEN_UNITS = 512
 MAX_ALLOWED_FRAMES = 20
 EMBEDDING_SIZE = 100
 
-K.set_image_dim_ordering('tf')
-
+# K.set_image_dim_ordering('tf')
+# K.common.image_dim_ordering()
 
 def generate_batch(x_samples, y_samples):
     num_batches = len(x_samples) // BATCH_SIZE
@@ -106,7 +106,12 @@ class VGG16BidirectionalLSTMVideoClassifier(object):
         # else:
         #     raise ValueError('cannot locate config file {}'.format(config_file_path))
 
+        # save np.load
+        np_load_old = np.load
+        # modify the default parameters of np.load
+        np.load = lambda *a, **k: np_load_old(*a, allow_pickle=True, **k)
         config = np.load(config_file_path).item()
+
         self.num_input_tokens = config['num_input_tokens']
         self.nb_classes = config['nb_classes']
         self.labels = config['labels']

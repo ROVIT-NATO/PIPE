@@ -1,8 +1,9 @@
 import sys
 import os
+
 stderr = sys.stderr
-os.environ["CUDA_VISIBLE_DEVICES"]='0'
-os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+# os.environ["CUDA_VISIBLE_DEVICES"]='0'
+# os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 sys.stderr = open(os.devnull, 'w')
 from keras.layers import Dense, Activation, Dropout, Bidirectional
 from keras.layers.recurrent import LSTM
@@ -16,7 +17,8 @@ from keras.callbacks import ModelCheckpoint
 import os
 import numpy as np
 
-from algos.abnormal_behaviour.keras_video_classifier.library.utility.frame_extractors.vgg16_feature_extractor import extract_vgg16_features_live, \
+from algos.abnormal_behaviour.keras_video_classifier.library.utility.frame_extractors.vgg16_feature_extractor import \
+    extract_vgg16_features_live, \
     scan_and_extract_vgg16_features
 
 BATCH_SIZE = 10
@@ -26,7 +28,8 @@ HIDDEN_UNITS = 512
 MAX_ALLOWED_FRAMES = 20
 EMBEDDING_SIZE = 100
 
-K.set_image_dim_ordering('tf')
+
+# K.set_image_dim_ordering('tf')
 
 
 def generate_batch(x_samples, y_samples):
@@ -64,7 +67,6 @@ class VGG16BidirectionalLSTMVideoClassifier(object):
         model.add(Dropout(0.6))
 
         model.add(Dense(self.nb_classes))
-
 
         model.add(Activation('softmax'))
 
@@ -226,7 +228,7 @@ class VGG16BidirectionalLSTMVideoClassifier(object):
 
 class VGG16LSTMVideoClassifier(object):
     model_name = 'vgg16-lstm'
-    
+
     def __init__(self):
         self.num_input_tokens = None
         self.nb_classes = None
@@ -237,7 +239,7 @@ class VGG16LSTMVideoClassifier(object):
         self.expected_frames = None
         self.vgg16_include_top = None
         self.config = None
-        
+
     @staticmethod
     def get_config_file_path(model_dir_path, vgg16_include_top=None):
         if vgg16_include_top is None:
@@ -308,7 +310,8 @@ class VGG16LSTMVideoClassifier(object):
         predicted_label = self.labels_idx2word[predicted_class]
         return predicted_label
 
-    def fit(self, data_dir_path, model_dir_path, vgg16_include_top=True, data_set_name='UCF-101', test_size=0.3, random_state=42):
+    def fit(self, data_dir_path, model_dir_path, vgg16_include_top=True, data_set_name='UCF-101', test_size=0.3,
+            random_state=42):
         self.vgg16_include_top = vgg16_include_top
 
         config_file_path = self.get_config_file_path(model_dir_path, vgg16_include_top)
