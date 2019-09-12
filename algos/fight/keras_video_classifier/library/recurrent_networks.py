@@ -15,6 +15,9 @@ from sklearn.model_selection import train_test_split
 from keras.callbacks import ModelCheckpoint
 
 import numpy as np
+# np_load_old = np.load
+# modify the default parameters of np.load
+# np.load = lambda *a, **k: np_load_old(*a, allow_pickle=True, **k)
 sys.stderr = stderr
 
 from algos.fight.keras_video_classifier.library.utility.frame_extractors.vgg16_feature_extractor import extract_vgg16_features_live, \
@@ -107,10 +110,8 @@ class VGG16BidirectionalLSTMVideoClassifier(object):
         #     raise ValueError('cannot locate config file {}'.format(config_file_path))
 
         # save np.load
-        np_load_old = np.load
-        # modify the default parameters of np.load
-        np.load = lambda *a, **k: np_load_old(*a, allow_pickle=True, **k)
-        config = np.load(config_file_path).item()
+
+        config = np.load(config_file_path,allow_pickle=True).item()
 
         self.num_input_tokens = config['num_input_tokens']
         self.nb_classes = config['nb_classes']
