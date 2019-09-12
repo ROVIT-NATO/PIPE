@@ -15,10 +15,10 @@ import colorama
 import numpy as np
 from tqdm import tqdm
 
-import datasets
-import losses
-import models
-from utils import flow_utils, tools
+import algos.flow_analysis.FlowNet2_src.datasets as datasets
+import algos.flow_analysis.FlowNet2_src.losses as losses
+import algos.flow_analysis.FlowNet2_src.models as models
+from algos.flow_analysis.FlowNet2_src.utils import flow_utils, tools
 
 # fp32 copy of parameters for update
 global param_copy

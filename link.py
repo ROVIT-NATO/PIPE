@@ -12,7 +12,7 @@ from algos.counting import get_crowd
 
 # LogManager.displayLog('[Info] Loading Flow Detection  ...', 'blue')
 # from algos.flow_analysis import get_flow
-#
+
 LogManager.displayLog('[Info] Loading Fight Detection ...', 'blue')
 from algos.fight.demo import fight
 
@@ -96,7 +96,6 @@ def processFrame(url, freq):
                    pose, \
                    fight_label, \
                    abnormal_label
-
 
 def run():
     UtilityManager.remove_Folder(config.TEMP_VIDEO_PATH)

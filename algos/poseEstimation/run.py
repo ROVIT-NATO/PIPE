@@ -25,7 +25,7 @@ from estimator import PoseEstimator, TfPoseEstimator
 # logger.addHandler(ch)
 
 
-def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_19.ckpt', use_bn=False ):
+def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_19_old.ckpt', use_bn=False ):
     tf.logging.set_verbosity(tf.logging.WARN)
 
     checkpoint_path = InCheckPointPath
@@ -105,7 +105,7 @@ def processFrame(InFrame, IntfSession):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Training codes for Openpose using Tensorflow')
     parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/')
-    parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
+    parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19_old.ckpt')
     parser.add_argument('--image', type=str, default=None)
     # parser.add_argument('--run_model', type=str, default='img')
     parser.add_argument('--video', type=str, default=None)
@@ -241,7 +241,7 @@ if __name__ == '__main__':
 
 # if __name__ == '__main__':
 #     session = init(InCheckPointPath='checkpoints/train/',
-#          vgg19_path='checkpoints/vgg/vgg_19.ckpt')
+#          vgg19_path='checkpoints/vgg/vgg_19_old.ckpt')
 #     image = '/ocean/anish/Developer/RnD/poseEstimation/deep-high-resolution-net.pytorch/data/mpii/images/000916555.jpg'
 #     processFrame(image, session)
 #     session[0].close()

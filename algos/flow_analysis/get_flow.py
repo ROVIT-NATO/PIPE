@@ -7,13 +7,12 @@ import os
 import urllib.request
 import sys
 
-
 from algos.flow_analysis.FlowNet2_src import flow_to_image
 from algos.flow_analysis.FlowNet2_src import FlowNet2
 
-
 model = []
 path = os.path.dirname(__file__) + '/FlowNet2_src/pretrained/FlowNet2_checkpoint.pth.tar'
+
 
 def reporthook(block_num, block_size, total_size):
     read_so_far = block_num * block_size
@@ -27,6 +26,7 @@ def reporthook(block_num, block_size, total_size):
     else:  # total size is unknown
         sys.stderr.write("read %d\n" % (read_so_far,))
 
+
 flownet2 = FlowNet2()
 
 if os.path.isfile(path):
@@ -36,8 +36,11 @@ else:
     os.makedirs(path1)
     print('flow weights not found.. downloading ')
 
-    urllib.request.urlretrieve(
-        "http://download1589.mediafire.com/uiocw79svv9g/vrir61dv2ed93ty/FlowNet2_checkpoint.pth.tar", path , reporthook=reporthook)
+    # urllib.request.urlretrieve(
+    #     "http://download1589.mediafire.com/uiocw79svv9g/vrir61dv2ed93ty/FlowNet2_checkpoint.pth.tar", path,
+    #     reporthook=reporthook)
+    urllib.request.urlretrieve("https://kingston.box.com/shared/static/jws8z5rwvxn4ow72bw9bfn4o7um5g0y0", path, reporthook=reporthook)
+
 
     pretrained_dict = torch.load(path)['state_dict']
 

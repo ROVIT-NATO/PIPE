@@ -14,7 +14,7 @@ def process_pose(InFrame):
 
 # if __name__ == '__main__':
 #     # session = TestManager.init(InCheckPointPath='checkpoints/train/',
-#     #                            vgg19_path='checkpoints/vgg/vgg_19.ckpt')
+#     #                            vgg19_path='checkpoints/vgg/vgg_19_old.ckpt')
 #
 #     while True:
 #         stream = cv2.VideoCapture('rtsp://root:pass@10.144.129.107/axis-media/media.amp')

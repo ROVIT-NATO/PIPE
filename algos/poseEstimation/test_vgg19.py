@@ -7,7 +7,7 @@ import numpy as np
 img = cv2.imread("images/1.png")
 img = cv2.resize(img, (368, 368))
 img = np.resize(img, [1, 368, 368, 3])
-vgg19_ckpt_path = "checkpoints/vgg/vgg_19.ckpt"
+vgg19_ckpt_path = "checkpoints/vgg/vgg_19_old.ckpt"
 
 with tf.name_scope('inputs'):
     inputs = tf.placeholder(tf.float32, shape=(None, None, None, 3))

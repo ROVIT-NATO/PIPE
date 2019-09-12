@@ -19,20 +19,24 @@ from algos.poseEstimation.estimator import PoseEstimator, TfPoseEstimator
 import urllib.request
 
 
-def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_19.ckpt', use_bn=False):
+def init(InCheckPointPath='checkpoints/train/', vgg19_path='checkpoints/vgg/vgg_19_old.ckpt', use_bn=False):
     # tf.logging.set_verbosity(tf.logging.WARN)
 
     checkpoint_path = InCheckPointPath
     if os.path.isfile(checkpoint_path + 'model-59000.ckpt.data-00000-of-00001') is False:
         print('Downloading checkpoints .. ')
-        urllib.request.urlretrieve(
-            'http://download1489.mediafire.com/06e1e154aqrg/fs9ag3b1bdihjtd/model-59000.ckpt.data-00000-of-00001',
+        # urllib.request.urlretrieve(
+        #     'http://download1489.mediafire.com/06e1e154aqrg/fs9ag3b1bdihjtd/model-59000.ckpt.data-00000-of-00001',
+        #     InCheckPointPath + 'model-59000.ckpt.data-00000-of-00001_old', reporthook=reporthook)
+        urllib.request.urlretrieve('https://kingston.box.com/shared/static/7lu4vy2hifu1n14uhu17afwf3abve3sh',
             InCheckPointPath + 'model-59000.ckpt.data-00000-of-00001', reporthook=reporthook)
 
     backbone_net_ckpt_path = vgg19_path
     if os.path.isfile(backbone_net_ckpt_path) is False:
         print('Downloading vgg weights .. ')
-        urllib.request.urlretrieve('http://download1640.mediafire.com/9muf6utih7bg/y93ud1n21401ed8/vgg_19.ckpt',
+        # urllib.request.urlretrieve('http://download1640.mediafire.com/9muf6utih7bg/y93ud1n21401ed8/vgg_19.ckpt',
+        #                            backbone_net_ckpt_path, reporthook=reporthook)
+        urllib.request.urlretrieve('https://kingston.box.com/shared/static/46shxk23kbalkyc2lkmioaejstlfonpc',
                                    backbone_net_ckpt_path, reporthook=reporthook)
     with tf.name_scope('inputs'):
         raw_img = tf.placeholder(tf.float32, shape=[None, None, None, 3])
